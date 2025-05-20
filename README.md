@@ -13,13 +13,13 @@ Usage:
   
   Example Code for the textio unit :
   ```
-/**************************************************/
-/*	TRSE Mega65 StdLib							  */
-/*	Example : text.ras							  */
-/*												  */
-/*	Shows usage of textio unit					  */
-/*                        						  */
-/**************************************************/
+/****************************************************************/
+/*	TRSE Mega65 StdLib							  													*/
+/*	Example : text.ras							  													*/
+/*												  																		*/
+/*	Shows usage of textio unit					  											*/
+/*                        						  												*/
+/****************************************************************/
 program text;
 
 @use "Mega65/textio"
