@@ -1,5 +1,5 @@
-zeropages = ,$02,  $04,  $08,  $16,  $0B,  $0D,  $10,  $12,  $22,  $24,  $68
-temp_zeropages = ,$54,  $56,  $58,  $5A
+zeropages = ,$02, $04, $08, $16, $0B, $0D, $10, $12, $22, $24, $68
+temp_zeropages = ,$54, $56, $58, $5A
 zeropage_screenmemory = $fe
 zeropage_decrunch1 = $47
 zeropage_decrunch2 = $48
@@ -29,7 +29,7 @@ override_target_settings_ignore_sys = 0
 override_target_settings_ignore_prg = 0
 output_debug_symbols = 1
 open_files = ,Turbo Rascal Solution, main.ras, Mega65/memory.tru, Examples/mem.ras, Mega65/fileio.tru, Mega65/misc.tru, Examples/files.ras, Mega65/system.tru, Mega65/textio.tru, Examples/text.ras
-project_path = /home/roughnight86/Austausch/StdLib/
+project_path = /home/roughnight86/Austausch/Mega65Lib/
 use_track_19 = 1
 disable_compiler_comments = 0
 zeropage_colormemory = $fb

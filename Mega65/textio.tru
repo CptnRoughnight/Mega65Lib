@@ -1,20 +1,20 @@
 /***************************************************************/
-/*	TRSE Mega65 StdLib														*/
-/*	textio.TRU																	*/	
-/*																					*/
-/*	Procedures:																	*/
-/*																					*/
-/*	Functions:																	*/
-/*		Set80x50 	- set 80x50 textmode									*/
-/*		Set80x25		- set 80x25 textmode									*/
-/*		Set40x25		- set 40x25 textmode									*/
-/*		ClearScreen	- Clear screen with char and color				*/
-/*		SetScreenLocation	- Set memory address of screen 			*/
-/*		SetCharLocation	- Set memory address of chardata			*/
+/*	TRSE Mega65 StdLib										*/
+/*	textio.TRU												*/	
+/*															*/
+/*	Procedures:												*/
+/*															*/
+/*	Functions:												*/
+/*		Set80x50 	- set 80x50 textmode						*/
+/*		Set80x25		- set 80x25 textmode						*/
+/*		Set40x25		- set 40x25 textmode						*/
+/*		ClearScreen	- Clear screen with char and color		*/
+/*		SetScreenLocation	- Set memory address of screen 	*/
+/*		SetCharLocation	- Set memory address of chardata		*/
 /*		SetScreenBackground 	- Set Background and Border color	*/
-/*		PrintChar	- print char at location with color 			*/
+/*		PrintChar	- print char at location with color 		*/
 /*		PrintString 	- print string at location with color 	*/
-/*																					*/		
+/*															*/		
 /***************************************************************/
 unit textio;
 
@@ -31,9 +31,9 @@ var
 
 
 /**************************************************/
-/*	textio::COLOR												*/
-/*																	*/	
-/*																	*/
+/*	textio::COLOR								*/
+/*												*/	
+/*												*/
 /**************************************************/
  COLORS : array[32] of byte = (
   0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,
@@ -42,9 +42,9 @@ var
 
 
 /**************************************************/
-/*	textio::Set80x50											*/
-/*																	*/	
-/*																	*/
+/*	textio::Set80x50								*/
+/*												*/	
+/*												*/
 /**************************************************/
 procedure Set80x50;
 begin
@@ -62,9 +62,9 @@ begin
 end;
 
 /**************************************************/
-/*	textio::Set80x25											*/
-/*																	*/	
-/*																	*/
+/*	textio::Set80x25								*/
+/*												*/	
+/*												*/
 /**************************************************/
 procedure Set80x25;
 begin
@@ -82,9 +82,9 @@ begin
 end;
 
 /**************************************************/
-/*	textio::Set40x25											*/
-/*																	*/	
-/*																	*/
+/*	textio::Set40x25								*/
+/*												*/	
+/*												*/
 /**************************************************/
 procedure Set40x25;
 begin
@@ -103,11 +103,11 @@ begin
 end;
 
 /**************************************************/
-/*	textio::ClearScreen										*/
-/*																	*/	
-/*	ch			- character to fill the screen 			*/
-/*	c			- color to fill the screen 				*/
-/*																	*/
+/*	textio::ClearScreen							*/
+/*												*/	
+/*	ch			- character to fill the screen 	*/
+/*	c			- color to fill the screen 		*/
+/*												*/
 /**************************************************/
 procedure ClearScreen(ch,c : byte);
 begin
@@ -117,11 +117,11 @@ end;
 
 
 /**************************************************/
-/*	textio::ClearScreen										*/
-/*																	*/	
-/*	back			- color background						*/
-/*	border		- color border								*/
-/*																	*/ 
+/*	textio::ClearScreen							*/
+/*												*/	
+/*	back			- color background				*/
+/*	border		- color border					*/
+/*												*/ 
 /**************************************************/
 procedure SetScreenBackground(back,border : byte);
 begin
@@ -135,11 +135,11 @@ end;
 
 
 /**************************************************/
-/*	textio::SetCharLocation									*/
-/*																	*/	
-/*	b			- Bank of charset location					*/
-/*	adr			- address of charset location			*/
-/*																	*/
+/*	textio::SetCharLocation						*/
+/*												*/	
+/*	b			- Bank of charset location		*/
+/*	adr			- address of charset location		*/
+/*												*/
 /**************************************************/
 procedure SetCharLocation(b:byte;adr : integer);
 begin
@@ -157,10 +157,10 @@ end;
 
 
 /**************************************************/
-/*	textio::SetScreenLocation								*/
-/*																	*/	
-/*	b			- Bank of screen Location					*/
-/*	adr			- address of screen Location			*/
+/*	textio::SetScreenLocation					*/
+/*												*/	
+/*	b			- Bank of screen Location		*/
+/*	adr			- address of screen Location		*/
 /**************************************************/
 procedure SetScreenLocation(b:byte;adr : integer);
 begin
@@ -178,11 +178,11 @@ end;
 
 
 /**************************************************/
-/*	textio::PrintChar											*/
-/*																	*/	
-/*	x,y			- Screen position of char				*/
-/*	ch			- char to print 								*/
-/*  c			- color to print 								*/
+/*	textio::PrintChar							*/
+/*												*/	
+/*	x,y			- Screen position of char		*/
+/*	ch			- char to print 					*/
+/*  c			- color to print 				*/
 /**************************************************/
 procedure PrintChar(x,y,ch,c : byte);
 begin
@@ -192,11 +192,11 @@ end;
 
 
 /**************************************************/
-/*	textio::PrintString										*/
-/*																	*/	
-/*	s			- pointer to string							*/
-/*	x,y			- Screen position of string			*/
-/*  c			- color to print 								*/
+/*	textio::PrintString							*/
+/*												*/	
+/*	s			- pointer to string				*/
+/*	x,y			- Screen position of string		*/
+/*  c			- color to print 				*/
 /**************************************************/
 procedure PrintString(s : global ^byte;x,y,c : byte);
 var
