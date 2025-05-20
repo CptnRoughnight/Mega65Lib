@@ -1,0 +1,245 @@
+/***************************************************************/
+/*	TRSE Mega65 StdLib										*/
+/*	Memory.TRU												*/	
+/*															*/
+/*	Procedures:												*/
+/*		Fill	   - Fill Memory with Value (DMA)					*/
+/*		Copy	   - Copy Memory from Source to Destination (DMA)	*/
+/*		Poke32 - Poke with 28bit addressing					*/
+/*		Peek32 - Peek with 29bit addressing					*/
+/*		WPoke32- Poke integer value with 28bit addressing		*/
+/*		WPeek32- Peek integer with 28bit addressing			*/
+/*															*/		
+/***************************************************************/
+unit memory;
+
+  
+var 
+	p : pointer;	// mandatory variable for trse
+	
+/**************************************************/
+/*	memory::Fill									*/
+/*												*/	
+/*	adrhi  - high-integer of address				*/
+/*	adrlo  - low-integer of address				*/
+/*	countx - how many bytes to fill				*/
+/*	value  - fill with value						*/
+/*												*/
+/**************************************************/
+procedure Fill(adrhi,adrlo,countx,value : integer);
+begin
+	asm("
+		lda localVariable_memory_Fill_memory_countx
+		ldy localVariable_memory_Fill_memory_countx+1
+		sta @dmaFillCount
+		sty @dmaFillCount+1
+		
+		lda localVariable_memory_Fill_memory_value
+		ldy localVariable_memory_Fill_memory_value+1
+		sta @dmaFillValue
+		sty @dmaFillValue+1
+		
+		lda localVariable_memory_Fill_memory_adrlo
+		ldy localVariable_memory_Fill_memory_adrlo+1
+		sta @dmaFillDst
+		sty @dmaFillDst+1
+	
+		lda localVariable_memory_Fill_memory_adrhi
+		ldy localVariable_memory_Fill_memory_adrhi+1
+		sta @dmaFillDstBank
+		sty @dmaDstMB
+		
+		
+		sta $d707												; execute memory
+		.byte $0B												; F011B memory format
+		.byte $81
+		@dmaDstMB:
+		.byte $00												; set MB of destination
+		.byte $00												; end of job options
+		.byte $03												; fill
+		@dmaFillCount: 		.word $0028							; count
+		@dmaFillValue: 		.word $00							; value
+		.byte $00												; src bank
+		@dmaFillDst: 		.word $f800							; dst
+		@dmaFillDstBank: 	.byte $01							; dst bank
+		.byte $00												; cmd hi
+		.word $00												; modulo / ignored
+	");
+	
+end;
+
+/*****************************************************	*/
+/*	memory::Copy									    	*/
+/*												  	*/	
+/*	srcadrhi  - high-integer of source address	  	*/
+/*	srcadrlo  - low-integer of source address		  	*/
+/*	dstadrhi  - high-integer of destination address 	*/
+/*	dstadrlo	  - low-integer of destination adress   	*/
+/*	countx - how many bytes to copy				  	*/
+/*													*/
+/******************************************************/
+procedure Copy(srcadrhi,srcadrlo : integer;dstadrhi,dstadrlo : integer;countx : integer);
+begin
+	asm("
+		lda localVariable_memory_Copy_memory_countx
+		ldy localVariable_memory_Copy_memory_countx+1
+		sta @dmaCopyCount
+		sty @dmaCopyCount+1
+				
+		lda localVariable_memory_Copy_memory_dstadrlo
+		ldy localVariable_memory_Copy_memory_dstadrlo+1
+		sta @dmaFillDst
+		sty @dmaFillDst+1
+	
+		lda localVariable_memory_Copy_memory_dstadrhi
+		ldy localVariable_memory_Copy_memory_dstadrhi+1
+		sta @dmaFillDstBank
+		sty @dmaDstMB
+		
+		lda localVariable_memory_Copy_memory_srcadrlo
+		ldy localVariable_memory_Copy_memory_srcadrlo+1
+		sta @dmaSrc
+		sty @dmaSrc+1
+		
+		lda localVariable_memory_Copy_memory_srcadrhi
+		ldy localVariable_memory_Copy_memory_srcadrhi+1
+		sta @dmaSrcBank
+		sty @dmaSrcMB
+		
+		sta $d707												; execute memory
+		.byte $0B												; F011B memory format
+		.byte $81
+		@dmaDstMB:			.byte $00							; set MB of destination
+		.byte $80
+		@dmaSrcMB:			.byte $00
+		.byte $00												; end of job options
+		.byte $00												; copy
+		@dmaCopyCount: 		.word $0028							; count
+		@dmaSrc: 			.word $00							; source
+		@dmaSrcBank:     	.byte $00							; src bank
+		@dmaFillDst: 		.word $f800							; dst
+		@dmaFillDstBank: 	.byte $01							; dst bank
+		.byte $00												; cmd hi
+		.word $00												; modulo / ignored
+	");
+	
+end;
+
+/***************************************************/
+/*	memory::Poke32								 */
+/*												 */	
+/*	adrhi   - High-integer of address				 */
+/*	adrlo 	- High-integer of address		     */
+/*	val 	    - Value to poke						 */
+/*												 */	
+/***************************************************/
+procedure Poke32(adrhi:integer;adrlo:integer;val : byte);
+begin
+		asm("
+			lda localVariable_memory_Poke32_memory_adrhi+1
+			sta $43
+			lda localVariable_memory_Poke32_memory_adrhi
+			sta $42
+			lda localVariable_memory_Poke32_memory_adrlo+1
+			sta $41
+			lda	localVariable_memory_Poke32_memory_adrlo
+			sta $40
+			lda localVariable_memory_Poke32_memory_val
+			ldz #0
+			nop
+			sta ($40),z
+		");
+
+end;
+
+
+/**************************************************/
+/*	memory::Poke32								*/
+/*												*/	
+/*	adrhi   - High-integer of address				*/
+/*	adrlo 	- High-integer of address			*/
+/*	returns - peeked value						*/
+/*												*/	
+/**************************************************/
+function Peek32(adrhi:integer;adrlo:integer) : byte;
+begin
+		asm("
+			lda localVariable_memory_Poke32_memory_adrhi+1
+			sta $43
+			lda localVariable_memory_Poke32_memory_adrhi
+			sta $42
+			lda localVariable_memory_Poke32_memory_adrlo+1
+			sta $41
+			lda	localVariable_memory_Poke32_memory_adrlo
+			sta $40
+			
+			ldz #0
+			nop
+			lda($40),z ; return value in A
+		");
+end;
+
+/**************************************************/
+/*	memory::WPoke32								*/
+/*												*/	
+/*	adrhi   - High-integer of address				*/
+/*	adrlo 	- High-integer of address			*/
+/*	val 	    - Value to poke (integer)				*/
+/*												*/	
+/**************************************************/
+procedure WPoke32(adrhi,adrlo:integer;val:integer);
+begin
+		asm("
+			lda localVariable_memory_WPoke32_memory_adrhi+1
+			sta $43
+			lda localVariable_memory_WPoke32_memory_adrhi
+			sta $42
+			lda localVariable_memory_WPoke32_memory_adrlo+1
+			sta $41
+			lda	localVariable_memory_WPoke32_memory_adrlo
+			sta $40
+			
+			lda localVariable_memory_WPoke32_memory_val
+			ldz #0
+			nop
+			sta ($40),z
+			
+			lda localVariable_memory_WPoke32_memory_val+1
+			ldz #1
+			nop
+			sta ($40),z
+		");
+end;
+
+/**************************************************/
+/*	memory::WPeek32								*/
+/*												*/	
+/*	adrhi   - High-integer of address				*/
+/*	adrlo 	- High-integer of address			*/
+/*	returns - peeked value (integer)				*/
+/*												*/	
+/**************************************************/
+function WPeek32(adrhi,adrlo:integer) : integer;
+begin
+		asm("
+			lda localVariable_memory_WPeek32_memory_adrhi+1
+			sta $43
+			lda localVariable_memory_WPeek32_memory_adrhi
+			sta $42
+			lda localVariable_memory_WPeek32_memory_adrlo+1
+			sta $41
+			lda	localVariable_memory_WPeek32_memory_adrlo
+			sta $40
+			
+			ldz #1
+			nop
+			lda ($40),z		 
+			tay				; high byte in Y
+			
+			ldz #0
+			nop
+			lda ($40),z		; low byte in A
+		");
+end;
+
+end.

@@ -1,0 +1,12 @@
+program HelloWorld;
+
+@use "Mega65/textio"
+
+
+begin
+	textio::Set80x25();
+	textio::SetScreenBackground(1,8);
+	textio::ClearScreen(1,6);
+	
+	Loop(); 
+end.

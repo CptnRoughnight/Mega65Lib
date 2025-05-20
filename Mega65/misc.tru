@@ -1,0 +1,33 @@
+/***************************************************************/
+/*	TRSE Mega65 StdLib										*/
+/*	misc.TRU													*/	
+/*															*/
+/*	Procedures:												*/
+/*															*/
+/*	Functions:												*/
+/*		strlen - returns length of string						*/
+/*															*/		
+/***************************************************************/
+unit misc;
+
+var
+	s : ^byte;
+
+/**************************************************/
+/*	misc::strlen									*/
+/*												*/	
+/*		s	- pointer to string 					*/
+/*												*/
+/*	returns										*/
+/*		byte : length of string					*/ 
+/**************************************************/
+function strlen(s : global ^byte) : byte;
+var
+	index : byte;
+begin
+	while (s[index]<>0) do
+		index := index + 1;
+	strlen := index;	
+end;
+
+end.

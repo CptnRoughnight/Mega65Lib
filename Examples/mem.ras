@@ -1,0 +1,21 @@
+/**************************************************/
+/*	TRSE Mega65 StdLib							*/
+/*	Example : mem.ras							*/
+/*												*/
+/*	Shows the usage of the mega65 memory unit 	*/
+/*												*/		
+/**************************************************/
+program mem;
+
+@use "Mega65/memory"
+
+var 
+	val : integer;
+
+begin
+	memory::Fill($0000,$0800,80*25,87);
+	memory::Copy($0000,$0800,$ff08,$0000,80*25);
+	memory::Poke32($0ff8,$0000,13);
+	val := memory::WPeek32($0ff8,$0000);
+	Loop(); 
+end.

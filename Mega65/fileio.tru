@@ -1,0 +1,124 @@
+/***************************************************************/
+/*	TRSE Mega65 StdLib										*/
+/*	Memory.TRU												*/	
+/*															*/
+/*	Procedures:												*/
+/*		SaveFile		- Save memory to File					*/
+/*		LoadFile 	- Load File into memory					*/
+/*															*/		
+/*	Hint:													*/
+/*		To use this library, you have to use a D81 image		*/
+/*		use the vice tool C1541 to create on an put your prg  */
+/*		and data onto it. Look at Examples/files.ras 			*/
+/***************************************************************/
+unit fileio;
+
+@use "Mega65/misc"
+
+var 
+	s : ^byte;
+
+/**************************************************/
+/*	fileio::SaveFile								*/
+/*												*/	
+/*	b  		- bank of address					*/
+/*	addr  	- startaddress						*/
+/*	endadr 	- endaddress							*/
+/*	s  		- pointer to filename-string			*/
+/*												*/
+/**************************************************/
+procedure SaveFile(b:integer;addr,endadr:integer;s : global ^byte);
+var	
+	l : byte;
+begin
+	l := misc::strlen(s);
+	asm("
+		sei
+		
+		lda localVariable_fileio_SaveFile_fileio_b+1	; for load address
+		ora #$80
+		ldy localVariable_fileio_SaveFile_fileio_b
+		ldx #$00	; bank for filename
+		jsr $ff6b
+			
+		
+		lda #$00
+		ldx #$08
+		ldy #$00
+		jsr $FFBA
+		
+		
+		lda localVariable_fileio_SaveFile_fileio_l
+		ldx fileio_s
+		ldy fileio_s+1
+		jsr $FFBD
+	
+		
+		lda localVariable_fileio_SaveFile_fileio_addr
+		sta $63
+		lda localVariable_fileio_SaveFile_fileio_addr+1
+		sta $64
+		
+		ldx localVariable_fileio_SaveFile_fileio_endadr
+		ldy localVariable_fileio_SaveFile_fileio_endadr+1
+		lda #$63
+		jsr $FFD8
+		bcs @derrorsave
+	jmp @goexitsave
+    @derrorsave:
+        inc $d021
+        jmp @derrorsave
+        
+    @goexitsave:
+		cli
+     ");		
+end;
+
+/**************************************************/
+/*	fileio::LoadFile								*/
+/*												*/	
+/*	b  		- bank of address					*/
+/*	addr  	- address to load to					*/
+/*	s  		- pointer to filename-string			*/
+/*												*/
+/**************************************************/
+procedure LoadFile(b : integer;addr : integer;s : global ^byte);
+var 
+	l : byte;
+begin
+	l := misc::strlen(s);
+	ASM("
+		sei		
+	
+		lda localVariable_fileio_LoadFile_fileio_b+1	; for load address
+		ora #$80
+		ldy localVariable_fileio_LoadFile_fileio_b
+		ldx #$00	; bank for filename
+		jsr $ff6b
+
+		lda #$00
+		ldx #$08
+		ldy #$00
+		jsr $FFBA
+					
+		lda localVariable_fileio_LoadFile_fileio_l
+		ldx fileio_s
+		ldy fileio_s+1
+		jsr $FFBD
+	
+		lda #$00
+		ldx localVariable_fileio_LoadFile_fileio_addr
+		ldy localVariable_fileio_LoadFile_fileio_addr+1
+		jsr $FFD5
+		bcs @derror
+		jmp @goexit
+	@derror:
+		inc $d020
+		jmp @derror
+		
+	@goexit:
+		cli
+	");	
+end;
+
+end.

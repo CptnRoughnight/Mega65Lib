@@ -1,0 +1,25 @@
+/**************************************************/
+/*	TRSE Mega65 StdLib							*/
+/*	Example : files.ras							*/
+/*												*/
+/*	Shows the usage of the mega65 fileio unit 	*/
+/*	to use it run buildfiles.sh command			*/
+/*	needs vice c1541 to be installed!				*/
+/*												*/		
+/**************************************************/
+program mem;
+
+@use "Mega65/memory"
+@use "Mega65/fileio"
+
+var 
+	val : integer;
+	@donotremove savedFile
+	savedFile : string = "SAVE.BIN";
+	
+begin
+	fileio::SaveFile($0000,$0800,$0FD0,#savedFile);	// save screen to file
+	memory::Fill($0000,$0800,80*25,87);
+	fileio::LoadFile($0000,$0800,#savedFile);			// load file back to screen
+	Loop(); 
+end.
