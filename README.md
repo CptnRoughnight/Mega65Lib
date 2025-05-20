@@ -8,14 +8,17 @@ Usage:
   
   !!!! Check that "Allow for local naming of function variables" is checked under menu project->Project Settings->Tab:Pascal Settings !!!!
 
+  In the examples folder is a TRSE.D81 with all the example projects compiled for quick testing on the machine or
+  the emulator.
+  
   Example Code for the textio unit :
   ```
 /**************************************************/
-/*	TRSE Mega65 StdLib							              */
-/*	Example : text.ras							              */
-/*												                        */
-/*	Shows usage of textio unit					          */
-/*                        												*/		
+/*	TRSE Mega65 StdLib							  */
+/*	Example : text.ras							  */
+/*												  */
+/*	Shows usage of textio unit					  */
+/*                        						  */
 /**************************************************/
 program text;
 

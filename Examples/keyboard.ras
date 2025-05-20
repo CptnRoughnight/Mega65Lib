@@ -1,0 +1,72 @@
+/**************************************************/
+/*	TRSE Mega65 StdLib							*/
+/*	Example : keyboard.ras						*/
+/*												*/
+/*	Shows the usage of inputs.tru					*/
+/*												*/		
+/**************************************************/
+program keyboard;
+
+@use "Mega65/inputs"
+@use "Mega65/textio"
+@use "Mega65/memory"
+@use "Mega65/system"
+
+var 
+	counter1 : integer;
+	color : byte;
+	x,y,c : byte;
+	wasd : byte ;
+	
+begin
+	wasd := 1;
+	system::Enable40Mhz;
+	textio::Set80x50();	// ! move the screen ram
+	textio::SetScreenLocation($0005,$0000);
+	textio::ClearScreen(1,6);
+	counter1 := 10000;
+	while(1) do
+	begin
+		// clear the screen
+		if (inputs::CheckKeyHit(inputs::MKEY_TAB)) then 
+		begin
+			textio::ClearScreen(0,0);
+			x := 0;
+			y := 0;
+		end;
+		
+		if (inputs::CheckKeyHit(inputs::MKEY_SPACE)) then
+		begin
+			wasd := wasd xor 1;
+		end;
+		
+		// device too fast... slow it down a bit
+		dec(counter1);
+		if (counter1=0) then
+		begin
+			// usually bad practise to slow down player input.... but only for example ;)
+			// WASD, because we're real gamers^^
+			if wasd then
+			begin
+				if (inputs::CheckKeyPressed(inputs::MKEY_W) and (y>0)) then DEC(y);
+				if (inputs::CheckKeyPressed(inputs::MKEY_S) and (y<textio::MAXY-1)) then INC(y);
+				if (inputs::CheckKeyPressed(inputs::MKEY_D) and (x<textio::MAXX-1)) then INC(x);
+				if (inputs::CheckKeyPressed(inputs::MKEY_A) and (x>0)) then DEC(x);
+			end else
+			begin
+				// the cursor keys... buggy, to say the least... working on it
+				if (inputs::CheckCursorPressed(inputs::MKEY_CURSOR_UP) and (y>0)) then DEC(y);
+				if (inputs::CheckCursorPressed(inputs::MKEY_CURSOR_DOWN) and (y<textio::MAXY-1)) then INC(y);
+				if (inputs::CheckCursorPressed(inputs::MKEY_CURSOR_RIGHT) and (x<textio::MAXX-1)) then INC(x);
+				if (inputs::CheckCursorPressed(inputs::MKEY_CURSOR_LEFT) and (x>0)) then DEC(x);
+			end;
+			
+			// cycle through all 32 available colors 
+			if (inputs::CheckModPressed(inputs::MKEY_MOD_LSHIFT)) then
+				c := mod (c+1,32);
+
+			textio::PrintChar(x,y,65,textio::COLORS[c]);
+			counter1:=10000;
+		end;
+	end;	
+end.

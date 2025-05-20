@@ -3,8 +3,6 @@
 /*	textio.TRU												*/	
 /*															*/
 /*	Procedures:												*/
-/*															*/
-/*	Functions:												*/
 /*		Set80x50 	- set 80x50 textmode						*/
 /*		Set80x25		- set 80x25 textmode						*/
 /*		Set40x25		- set 40x25 textmode						*/

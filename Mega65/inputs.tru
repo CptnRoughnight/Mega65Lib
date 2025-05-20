@@ -1,0 +1,275 @@
+/***********************************************************************/
+/*	TRSE Mega65 StdLib												*/
+/*	inputs.TRU														*/	
+/*																	*/
+/*	Functions:														*/
+/*		CheckKeyPressed		- Checks if a key is pressed				*/
+/*		CheckKeyHit			- Checks if a key is just pressed			*/
+/*		CheckCursorPressed	- Checks if a cursor key is pressed 		*/
+/*		CheckCursorHit		- Checks if a cursor key is just pressed 	*/
+/*		CheckModPressed		- Checks if a mod key is pressed			*/
+/*																	*/		
+/***********************************************************************/
+unit inputs;
+
+var
+/**************************************************/
+/*												*/
+/*	KEY CONSTANTS - 								*/
+/*												*/
+/**************************************************/
+
+const MKEY_INSDEL	: byte =0;
+const MKEY_RETURN	: byte =	1;
+const MKEY_RIGHT		: byte =	2;
+const MKEY_F7		: byte =	3;
+const MKEY_F1		: byte =	4;
+const MKEY_F3		: byte =	5;
+const MKEY_F5		: byte =	6;
+const MKEY_DOWN		: byte =	7;
+const MKEY_3  		: byte =	8;
+const MKEY_W  		: byte =	9;
+const MKEY_A  		: byte =	10;
+const MKEY_4  		: byte =	11;
+const MKEY_Z  		: byte =	12;
+const MKEY_S  		: byte =	13;
+const MKEY_E 		: byte =	14;
+const MKEY_LEFTSHIFT	: byte =	15;
+const MKEY_5  		: byte =	16;
+const MKEY_R  		: byte =	17;
+const MKEY_D  		: byte =	18;
+const MKEY_6			: byte =	19;
+const MKEY_C  		: byte =	20;
+const MKEY_F  		: byte =	21;
+const MKEY_T  		: byte =	22;
+const MKEY_X			: byte =	23;
+const MKEY_7  		: byte =	24;
+const MKEY_Y			: byte =	25;
+const MKEY_G  		: byte =	26;
+const MKEY_8			: byte =	27;
+const MKEY_B			: byte =	28;
+const MKEY_H 		: byte =	29;
+const MKEY_U  		: byte =	30;
+const MKEY_V			: byte =	31;
+const MKEY_9			: byte =	32;
+const MKEY_I 		: byte =	33;
+const MKEY_J			: byte =	34;
+const MKEY_0 		: byte =	35;
+const MKEY_M 		: byte =	36;
+const MKEY_K 		: byte =	37;
+const MKEY_O  		: byte =	38;
+const MKEY_N 		: byte =	39;
+const MKEY_PLUS 		: byte =	40;
+const MKEY_P 		: byte =	41;
+const MKEY_L 		: byte =	42;
+const MKEY_MINUS		: byte =	43;
+const MKEY_DOT		: byte =	44;
+const MKEY_COLON		: byte =	45;
+const MKEY_AT 		: byte =	46;
+const MKEY_COMMA		: byte =	47;
+const MKEY_POUND		: byte =	48;
+const MKEY_ASTERISK	: byte =	49;
+const MKEY_SEMICOLON	: byte =	50;
+const MKEY_CLRHOME	: byte =	51;
+const MKEY_RIGHTSHIFT: byte =	52;
+const MKEY_EQUAL		: byte =	53;
+const MKEY_UPARROW	: byte =	54;
+const MKEY_SLASH		: byte =	55;
+const MKEY_1  		: byte =	56;
+const MKEY_BACKARROW	: byte =	57;
+const MKEY_CTRL 		: byte =	58;
+const MKEY_2 		: byte =	59;
+const MKEY_SPACE		: byte =	60;
+const MKEY_MEGA 		: byte =	61;
+const MKEY_Q  		: byte =	62;
+const MKEY_RUNSTOP 	: byte =	63;
+const MKEY_NOSCROLL	: byte =	64;
+const MKEY_TAB		: byte =	65;
+const MKEY_ALT 		: byte =	66;
+const MKEY_HELP		: byte =	67;
+const MKEY_F9		: byte =	68;
+const MKEY_F11		: byte =	69;
+const MKEY_F13		: byte =	70;
+const MKEY_ESC 		: byte =	71;
+
+const MKEY_SP_RSHIFT	: byte =	1;
+const MKEY_SP_LSHIFT	: byte =	2;
+const MKEY_SP_CTRL	: byte =	4;
+const MKEY_SP_MEGA	: byte =	8;
+const MKEY_SP_ALT	: byte =	16;
+const MKEY_SP_SCRL	: byte =	32;
+const MKEY_SP_CAPS	: byte =	64;
+
+/**************************************************/
+/*												*/
+/*	CURSOR KEY CONSTANTS  						*/
+/*												*/
+/* 	For now the cursor keys will be checked 		*/
+/*	separately									*/
+/*												*/
+/**************************************************/
+
+const MKEY_CURSOR_LEFT : byte = 0;
+const MKEY_CURSOR_UP	: byte = 1;
+const MKEY_CURSOR_DOWN : byte = 2;
+const MKEY_CURSOR_RIGHT : byte = 3;
+
+
+/**************************************************/
+/*												*/
+/*	MOD KEY CONSTANTS  						*/
+/*												*/
+/* 	For now the cursor keys will be checked 		*/
+/*	separately									*/
+/*												*/
+/**************************************************/
+const MKEY_MOD_LSHIFT 	: byte = 1;
+const MKEY_MOD_RSHIFT 	: byte = 2;
+const MKEY_MOD_CTRL 	 	: byte = 4;
+const MKEY_MOD_MEGA		: byte = 8;
+const MKEY_MOD_ALT		: byte = 16;
+const MKEY_MOD_SCRL		: byte = 32;
+const MKEY_MOD_CAPS		: byte = 64;
+
+
+
+
+var	
+	D614 : array[81] of byte = (	0,0,0,0,0,0,0,0,
+								1,1,1,1,1,1,1,1,
+								2,2,2,2,2,2,2,2,
+								3,3,3,3,3,3,3,3,
+								4,4,4,4,4,4,4,4,
+								5,5,5,5,5,5,5,5,
+								6,6,6,6,6,6,6,6,
+								7,7,7,7,7,7,7,7,
+								8,8,8,8,8,8,8,8);
+								
+	D613 : array[81] of byte = (	1,2,4,8,16,32,64,128,
+								1,2,4,8,16,32,64,128,
+								1,2,4,8,16,32,64,128,
+								1,2,4,8,16,32,64,128,
+								1,2,4,8,16,32,64,128,
+								1,2,4,8,16,32,64,128,
+								1,2,4,8,16,32,64,128,
+								1,2,4,8,16,32,64,128,
+								1,2,4,8,16,32,64,128
+								);
+	pressed : array[81] of byte = 
+							(	0,0,0,0,0,0,0,0,
+								0,0,0,0,0,0,0,0,
+								0,0,0,0,0,0,0,0,
+								0,0,0,0,0,0,0,0,
+								0,0,0,0,0,0,0,0,
+								0,0,0,0,0,0,0,0,
+								0,0,0,0,0,0,0,0,
+								0,0,0,0,0,0,0,0,
+								0,0,0,0,0,0,0,0
+								);
+								
+	cursorPressed : array[4] of byte = (0,0,0,0);
+
+
+/**************************************************/
+/*	inputs::CheckKeyPressed						*/
+/*												*/	
+/*	k			- check for key k (see constants)	*/
+/*												*/
+/*	returns		- 1 if key is pressed,0 if not	*/
+/*												*/
+/**************************************************/
+function CheckKeyPressed (k : byte) : boolean;
+begin
+	POKE(^$D614,0,D614[k]);
+	CheckKeyPressed := (~PEEK(^$D613,0)&D613[k]);
+end;
+
+
+/**************************************************/
+/*	inputs::CheckKeyHit							*/
+/*												*/	
+/*	k			- check for key k (see constants)	*/
+/*												*/
+/*												*/
+/*	returns		- 1 if key is pressed,0 if not	*/
+/*												*/
+/**************************************************/
+function CheckKeyHit(k : byte) : boolean;
+var 
+	ret : byte;
+	ck : byte;
+begin
+	ret := 0;
+	ck := CheckKeyPressed(k);
+	if (ck<>0 and (pressed[k]=0)) then
+		ret := 1;
+	pressed[k] := ck;
+	CheckKeyHit := ret;
+end;
+
+
+/**************************************************/
+/*	inputs::CheckModPressed						*/
+/*												*/	
+/*	k			- check for modkey 	k 			*/
+/*												*/
+/*	returns		- 1 if key is pressed,0 if not	*/
+/*												*/
+/**************************************************/
+function CheckModPressed (k : byte) : boolean;
+var 
+	ret : boolean;
+begin
+	ret := false;
+	if ((PEEK(^$D611,0)&k)=k) then
+		ret := true;
+	CheckModPressed := ret;
+end;
+
+
+/**************************************************/
+/*	inputs::CheckCursorPressed					*/
+/*												*/	
+/*	k			- check for cursorkey k 			*/
+/*												*/
+/*	returns		- 1 if key is pressed,0 if not	*/
+/*												*/
+/**************************************************/
+
+function CheckCursorPressed (k : byte) : boolean;
+var
+	ret : boolean;
+	d604 : byte;
+begin
+	d604 := PEEK(^$D604,0);
+	ret := 0;
+	case k of
+	/* MKEY_CURSOR_LEFT: if (CheckKeyPressed(MKEY_RIGHT) and ( ((d604&1)=1) )) then ret := true;
+	 MKEY_CURSOR_UP:   if (CheckKeyPressed(MKEY_DOWN) and  ( ((d604&2)=2) )) then ret := true;
+	 MKEY_CURSOR_RIGHT:if (CheckKeyPressed(MKEY_RIGHT) and ( ((d604&1)=0) )) then ret := true;
+	 MKEY_CURSOR_DOWN: if (CheckKeyPressed(MKEY_DOWN) and  ( ((d604&2)=0) )) then ret := true;*/
+	 MKEY_CURSOR_LEFT: if (CheckKeyPressed(MKEY_RIGHT) and ( CheckModPressed(MKEY_MOD_RSHIFT))) then ret := true;
+	 MKEY_CURSOR_UP:   if (CheckKeyPressed(MKEY_DOWN) and  ( CheckModPressed(MKEY_MOD_RSHIFT))) then ret := true;
+	 MKEY_CURSOR_RIGHT:if (CheckKeyPressed(MKEY_RIGHT) and ( CheckModPressed(MKEY_MOD_RSHIFT)=0)) then ret := true;
+	 MKEY_CURSOR_DOWN: if (CheckKeyPressed(MKEY_DOWN) and  ( CheckModPressed(MKEY_MOD_RSHIFT)=0)) then ret := true;
+	end;	 	
+	CheckCursorPressed := ret;
+end;
+
+/**************************************************/
+/*	inputs::CheckCursorHit						*/
+/*												*/	
+/*	k			- check for cursorkey k 			*/
+/*												*/
+/*	returns		- 1 if key is pressed,0 if not	*/
+/*												*/
+/**************************************************/
+function CheckCursorHit (k : byte) : boolean;
+begin
+
+
+
+end;
+
+
+end.
