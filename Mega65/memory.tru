@@ -1,31 +1,31 @@
-/***************************************************************/
-/*	TRSE Mega65 StdLib										*/
-/*	Memory.TRU												*/	
-/*															*/
-/*	Procedures:												*/
-/*		Fill	   - Fill Memory with Value (DMA)					*/
+/****************************************************************/
+/*	TRSE Mega65 StdLib											*/
+/*	Memory.TRU													*/	
+/*																*/
+/*	Procedures:													*/
+/*		Fill	   - Fill Memory with Value (DMA)				*/
 /*		Copy	   - Copy Memory from Source to Destination (DMA)	*/
-/*		Poke32 - Poke with 28bit addressing					*/
-/*		Peek32 - Peek with 29bit addressing					*/
+/*		Poke32 - Poke with 28bit addressing						*/
+/*		Peek32 - Peek with 29bit addressing						*/
 /*		WPoke32- Poke integer value with 28bit addressing		*/
-/*		WPeek32- Peek integer with 28bit addressing			*/
-/*															*/		
-/***************************************************************/
+/*		WPeek32- Peek integer with 28bit addressing				*/
+/*																*/		
+/****************************************************************/
 unit memory;
 
   
 var 
 	p : pointer;	// mandatory variable for trse
 	
-/**************************************************/
-/*	memory::Fill									*/
-/*												*/	
-/*	adrhi  - high-integer of address				*/
-/*	adrlo  - low-integer of address				*/
-/*	countx - how many bytes to fill				*/
-/*	value  - fill with value						*/
-/*												*/
-/**************************************************/
+/****************************************************************/
+/*	memory::Fill												*/
+/*																*/	
+/*	adrhi  - high-integer of address							*/
+/*	adrlo  - low-integer of address								*/
+/*	countx - how many bytes to fill								*/
+/*	value  - fill with value									*/
+/*																*/
+/****************************************************************/
 procedure Fill(adrhi,adrlo,countx,value : integer);
 begin
 	asm("
@@ -68,16 +68,16 @@ begin
 	
 end;
 
-/*****************************************************	*/
-/*	memory::Copy									    	*/
-/*												  	*/	
-/*	srcadrhi  - high-integer of source address	  	*/
-/*	srcadrlo  - low-integer of source address		  	*/
-/*	dstadrhi  - high-integer of destination address 	*/
-/*	dstadrlo	  - low-integer of destination adress   	*/
-/*	countx - how many bytes to copy				  	*/
-/*													*/
-/******************************************************/
+/****************************************************************/
+/*	memory::Copy									    		*/
+/*												  				*/	
+/*	srcadrhi  - high-integer of source address	  				*/
+/*	srcadrlo  - low-integer of source address		  			*/
+/*	dstadrhi  - high-integer of destination address 			*/
+/*	dstadrlo	  - low-integer of destination adress   		*/
+/*	countx - how many bytes to copy				  				*/
+/*																*/
+/****************************************************************/
 procedure Copy(srcadrhi,srcadrlo : integer;dstadrhi,dstadrlo : integer;countx : integer);
 begin
 	asm("
@@ -125,14 +125,14 @@ begin
 	
 end;
 
-/***************************************************/
-/*	memory::Poke32								 */
-/*												 */	
-/*	adrhi   - High-integer of address				 */
-/*	adrlo 	- High-integer of address		     */
-/*	val 	    - Value to poke						 */
-/*												 */	
-/***************************************************/
+/****************************************************************/
+/*	memory::Poke32								 				*/
+/*												 				*/	
+/*	adrhi   - High-integer of address				 			*/
+/*	adrlo 	- High-integer of address		     				*/
+/*	val 	    - Value to poke						 			*/
+/*												 				*/	
+/****************************************************************/
 procedure Poke32(adrhi:integer;adrlo:integer;val : byte);
 begin
 		asm("
@@ -153,14 +153,14 @@ begin
 end;
 
 
-/**************************************************/
-/*	memory::Poke32								*/
-/*												*/	
-/*	adrhi   - High-integer of address				*/
-/*	adrlo 	- High-integer of address			*/
-/*	returns - peeked value						*/
-/*												*/	
-/**************************************************/
+/****************************************************************/
+/*	memory::Poke32												*/
+/*																*/	
+/*	adrhi   - High-integer of address							*/
+/*	adrlo 	- High-integer of address							*/
+/*	returns - peeked value										*/
+/*																*/	
+/****************************************************************/
 function Peek32(adrhi:integer;adrlo:integer) : byte;
 begin
 		asm("
@@ -179,14 +179,14 @@ begin
 		");
 end;
 
-/**************************************************/
-/*	memory::WPoke32								*/
-/*												*/	
-/*	adrhi   - High-integer of address				*/
-/*	adrlo 	- High-integer of address			*/
-/*	val 	    - Value to poke (integer)				*/
-/*												*/	
-/**************************************************/
+/****************************************************************/
+/*	memory::WPoke32												*/
+/*																*/	
+/*	adrhi   - High-integer of address							*/
+/*	adrlo 	- High-integer of address							*/
+/*	val 	    - Value to poke (integer)						*/
+/*																*/	
+/****************************************************************/
 procedure WPoke32(adrhi,adrlo:integer;val:integer);
 begin
 		asm("
@@ -211,14 +211,14 @@ begin
 		");
 end;
 
-/**************************************************/
-/*	memory::WPeek32								*/
-/*												*/	
-/*	adrhi   - High-integer of address				*/
-/*	adrlo 	- High-integer of address			*/
-/*	returns - peeked value (integer)				*/
-/*												*/	
-/**************************************************/
+/****************************************************************/
+/*	memory::WPeek32												*/
+/*																*/	
+/*	adrhi   - High-integer of address							*/
+/*	adrlo 	- High-integer of address							*/
+/*	returns - peeked value (integer)							*/
+/*																*/	
+/****************************************************************/
 function WPeek32(adrhi,adrlo:integer) : integer;
 begin
 		asm("

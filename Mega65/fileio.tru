@@ -1,16 +1,16 @@
-/***************************************************************/
-/*	TRSE Mega65 StdLib										*/
-/*	Memory.TRU												*/	
-/*															*/
-/*	Procedures:												*/
+/****************************************************************/
+/*	TRSE Mega65 StdLib											*/
+/*	Memory.TRU													*/	
+/*																*/
+/*	Procedures:													*/
 /*		SaveFile		- Save memory to File					*/
-/*		LoadFile 	- Load File into memory					*/
-/*															*/		
-/*	Hint:													*/
+/*		LoadFile 	- Load File into memory						*/
+/*																*/		
+/*	Hint:														*/
 /*		To use this library, you have to use a D81 image		*/
-/*		use the vice tool C1541 to create on an put your prg  */
+/*		use the vice tool C1541 to create on an put your prg  	*/
 /*		and data onto it. Look at Examples/files.ras 			*/
-/***************************************************************/
+/****************************************************************/
 unit fileio;
 
 @use "Mega65/misc"
@@ -18,15 +18,15 @@ unit fileio;
 var 
 	s : ^byte;
 
-/**************************************************/
-/*	fileio::SaveFile								*/
-/*												*/	
-/*	b  		- bank of address					*/
-/*	addr  	- startaddress						*/
-/*	endadr 	- endaddress							*/
-/*	s  		- pointer to filename-string			*/
-/*												*/
-/**************************************************/
+/****************************************************************/
+/*	fileio::SaveFile											*/
+/*																*/	
+/*	b  		- bank of address									*/
+/*	addr  	- startaddress										*/
+/*	endadr 	- endaddress										*/
+/*	s  		- pointer to filename-string						*/
+/*																*/
+/****************************************************************/
 procedure SaveFile(b:integer;addr,endadr:integer;s : global ^byte);
 var	
 	l : byte;
@@ -74,14 +74,14 @@ begin
      ");		
 end;
 
-/**************************************************/
-/*	fileio::LoadFile								*/
-/*												*/	
-/*	b  		- bank of address					*/
-/*	addr  	- address to load to					*/
-/*	s  		- pointer to filename-string			*/
-/*												*/
-/**************************************************/
+/****************************************************************/
+/*	fileio::LoadFile											*/
+/*																*/	
+/*	b  		- bank of address									*/
+/*	addr  	- address to load to								*/
+/*	s  		- pointer to filename-string						*/
+/*																*/
+/****************************************************************/
 procedure LoadFile(b : integer;addr : integer;s : global ^byte);
 var 
 	l : byte;

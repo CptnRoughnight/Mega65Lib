@@ -1,23 +1,23 @@
-/***********************************************************************/
-/*	TRSE Mega65 StdLib												*/
-/*	inputs.TRU														*/	
-/*																	*/
-/*	Functions:														*/
-/*		CheckKeyPressed		- Checks if a key is pressed				*/
-/*		CheckKeyHit			- Checks if a key is just pressed			*/
-/*		CheckCursorPressed	- Checks if a cursor key is pressed 		*/
+/****************************************************************/
+/*	TRSE Mega65 StdLib											*/
+/*	inputs.TRU													*/	
+/*																*/
+/*	Functions:													*/
+/*		CheckKeyPressed		- Checks if a key is pressed		*/
+/*		CheckKeyHit			- Checks if a key is just pressed	*/
+/*		CheckCursorPressed	- Checks if a cursor key is pressed */
 /*		CheckCursorHit		- Checks if a cursor key is just pressed 	*/
-/*		CheckModPressed		- Checks if a mod key is pressed			*/
-/*																	*/		
-/***********************************************************************/
+/*		CheckModPressed		- Checks if a mod key is pressed	*/
+/*																*/		
+/****************************************************************/
 unit inputs;
 
 var
-/**************************************************/
-/*												*/
-/*	KEY CONSTANTS - 								*/
-/*												*/
-/**************************************************/
+/****************************************************************/
+/*																*/
+/*	KEY CONSTANTS - 											*/
+/*																*/
+/****************************************************************/
 
 const MKEY_INSDEL	: byte =0;
 const MKEY_RETURN	: byte =	1;
@@ -100,14 +100,14 @@ const MKEY_SP_ALT	: byte =	16;
 const MKEY_SP_SCRL	: byte =	32;
 const MKEY_SP_CAPS	: byte =	64;
 
-/**************************************************/
-/*												*/
-/*	CURSOR KEY CONSTANTS  						*/
-/*												*/
-/* 	For now the cursor keys will be checked 		*/
-/*	separately									*/
-/*												*/
-/**************************************************/
+/****************************************************************/
+/*																*/
+/*	CURSOR KEY CONSTANTS  										*/
+/*																*/
+/* 	For now the cursor keys will be checked 					*/
+/*	separately													*/
+/*																*/
+/****************************************************************/
 
 const MKEY_CURSOR_LEFT : byte = 0;
 const MKEY_CURSOR_UP	: byte = 1;
@@ -115,14 +115,14 @@ const MKEY_CURSOR_DOWN : byte = 2;
 const MKEY_CURSOR_RIGHT : byte = 3;
 
 
-/**************************************************/
-/*												*/
-/*	MOD KEY CONSTANTS  						*/
-/*												*/
-/* 	For now the cursor keys will be checked 		*/
-/*	separately									*/
-/*												*/
-/**************************************************/
+/****************************************************************/
+/*																*/
+/*	MOD KEY CONSTANTS  											*/
+/*																*/
+/* 	For now the cursor keys will be checked 					*/
+/*	separately													*/
+/*																*/
+/****************************************************************/
 const MKEY_MOD_LSHIFT 	: byte = 1;
 const MKEY_MOD_RSHIFT 	: byte = 2;
 const MKEY_MOD_CTRL 	 	: byte = 4;
@@ -170,14 +170,14 @@ var
 	cursorPressed : array[4] of byte = (0,0,0,0);
 
 
-/**************************************************/
-/*	inputs::CheckKeyPressed						*/
-/*												*/	
-/*	k			- check for key k (see constants)	*/
-/*												*/
-/*	returns		- 1 if key is pressed,0 if not	*/
-/*												*/
-/**************************************************/
+/****************************************************************/
+/*	inputs::CheckKeyPressed										*/
+/*																*/	
+/*	k			- check for key k (see constants)				*/
+/*																*/
+/*	returns		- 1 if key is pressed,0 if not					*/
+/*																*/
+/****************************************************************/
 function CheckKeyPressed (k : byte) : boolean;
 begin
 	POKE(^$D614,0,D614[k]);
@@ -185,15 +185,15 @@ begin
 end;
 
 
-/**************************************************/
-/*	inputs::CheckKeyHit							*/
-/*												*/	
-/*	k			- check for key k (see constants)	*/
-/*												*/
-/*												*/
-/*	returns		- 1 if key is pressed,0 if not	*/
-/*												*/
-/**************************************************/
+/****************************************************************/
+/*	inputs::CheckKeyHit											*/
+/*																*/	
+/*	k			- check for key k (see constants)				*/
+/*																*/
+/*																*/
+/*	returns		- 1 if key is pressed,0 if not					*/
+/*																*/
+/****************************************************************/
 function CheckKeyHit(k : byte) : boolean;
 var 
 	ret : byte;
@@ -208,14 +208,14 @@ begin
 end;
 
 
-/**************************************************/
-/*	inputs::CheckModPressed						*/
-/*												*/	
-/*	k			- check for modkey 	k 			*/
-/*												*/
-/*	returns		- 1 if key is pressed,0 if not	*/
-/*												*/
-/**************************************************/
+/****************************************************************/
+/*	inputs::CheckModPressed										*/
+/*																*/	
+/*	k			- check for modkey 	k 							*/
+/*																*/
+/*	returns		- 1 if key is pressed,0 if not					*/
+/*																*/
+/****************************************************************/
 function CheckModPressed (k : byte) : boolean;
 var 
 	ret : boolean;
@@ -227,14 +227,14 @@ begin
 end;
 
 
-/**************************************************/
-/*	inputs::CheckCursorPressed					*/
-/*												*/	
-/*	k			- check for cursorkey k 			*/
-/*												*/
-/*	returns		- 1 if key is pressed,0 if not	*/
-/*												*/
-/**************************************************/
+/****************************************************************/
+/*	inputs::CheckCursorPressed									*/
+/*																*/	
+/*	k			- check for cursorkey k 						*/
+/*																*/
+/*	returns		- 1 if key is pressed,0 if not					*/
+/*																*/
+/****************************************************************/
 
 function CheckCursorPressed (k : byte) : boolean;
 var
@@ -256,14 +256,14 @@ begin
 	CheckCursorPressed := ret;
 end;
 
-/**************************************************/
-/*	inputs::CheckCursorHit						*/
-/*												*/	
-/*	k			- check for cursorkey k 			*/
-/*												*/
-/*	returns		- 1 if key is pressed,0 if not	*/
-/*												*/
-/**************************************************/
+/****************************************************************/
+/*	inputs::CheckCursorHit										*/
+/*																*/	
+/*	k			- check for cursorkey k 						*/
+/*																*/
+/*	returns		- 1 if key is pressed,0 if not					*/
+/*																*/
+/****************************************************************/
 function CheckCursorHit (k : byte) : boolean;
 begin
 

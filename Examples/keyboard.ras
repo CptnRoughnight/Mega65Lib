@@ -1,10 +1,10 @@
-/**************************************************/
-/*	TRSE Mega65 StdLib							*/
-/*	Example : keyboard.ras						*/
-/*												*/
-/*	Shows the usage of inputs.tru					*/
-/*												*/		
-/**************************************************/
+/****************************************************************/
+/*	TRSE Mega65 StdLib											*/
+/*	Example : keyboard.ras										*/
+/*																*/
+/*	Shows the usage of inputs.tru								*/
+/*																*/		
+/****************************************************************/
 program keyboard;
 
 @use "Mega65/inputs"

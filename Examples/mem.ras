@@ -1,10 +1,10 @@
-/**************************************************/
-/*	TRSE Mega65 StdLib							*/
-/*	Example : mem.ras							*/
-/*												*/
-/*	Shows the usage of the mega65 memory unit 	*/
-/*												*/		
-/**************************************************/
+/****************************************************************/
+/*	TRSE Mega65 StdLib											*/
+/*	Example : mem.ras											*/
+/*																*/
+/*	Shows the usage of the mega65 memory unit 					*/
+/*																*/		
+/****************************************************************/
 program mem;
 
 @use "Mega65/memory"

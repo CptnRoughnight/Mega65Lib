@@ -1,12 +1,12 @@
-/**************************************************/
-/*	TRSE Mega65 StdLib							*/
-/*	Example : files.ras							*/
-/*												*/
-/*	Shows the usage of the mega65 fileio unit 	*/
-/*	to use it run buildfiles.sh command			*/
-/*	needs vice c1541 to be installed!				*/
-/*												*/		
-/**************************************************/
+/****************************************************************/
+/*	TRSE Mega65 StdLib											*/
+/*	Example : files.ras											*/
+/*																*/
+/*	Shows the usage of the mega65 fileio unit 					*/
+/*	to use it run buildfiles.sh command							*/
+/*	needs vice c1541 to be installed!							*/
+/*																*/		
+/****************************************************************/
 program mem;
 
 @use "Mega65/memory"
