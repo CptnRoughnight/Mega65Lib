@@ -1,5 +1,5 @@
 # Mega65Lib
-TRSE Mega65 Library !!! unfinished, Code will change !!!
+TRSE Mega65 Library !!! unfinished, Code will change
 
 Attempt to write sort of standard library for the MEGA65 (https://mega65.org/) with TRSE (https://lemonspawn.com/turbo-rascal-syntax-error-expected-but-begin/)
 
@@ -31,16 +31,20 @@ var
 	i : byte;
 	hello : String = "HELLO WORLD";
 	
+	newChar : Array[8] of byte = (%01111110,%11111111,%11011011,%11111111,%11000011,%11100111,%11111111,%01111110);
+	
 begin
-//	textio::Set40x25();	// no need to move the screen ram
+	textio::Set40x25();	// no need to move the screen ram
 //	textio::Set80x25();  // no need to move the screen ram
 	
-	textio::Set80x50();	// ! move the screen ram
-	textio::SetScreenLocation($0005,$0000);
+//	textio::Set80x50();	// ! move the screen ram
+	textio::SetCharLocation($0004,$0000);		// set char location to $40000
+	textio::SetScreenLocation($0005,$0000);		// new screen location $50000
 	
 	textio::SetScreenBackground(1,8);
 	textio::ClearScreen(1,6);
-	textio::SetCharLocation($0002,$D000);
+	
+
 	font := 0;
 	counter1 := 65535;
 	counter2 :=2;
@@ -60,19 +64,20 @@ begin
 			dec(counter2);
 			if (counter2=0) then
 			begin
-				counter2 := 2;
+				counter2 := 4;
 				inc(font);
 				case font of
-					0: textio::SetCharLocation($0002,$D000);
-					1: textio::SetCharLocation($0002,$D800);
-					2: textio::SetCharLocation($0003,$D000);
-					3: textio::SetCharLocation($0003,$D800);
-					4: textio::SetCharLocation($0002,$9000);
-					5: textio::SetCharLocation($0002,$9800);
+					0: textio::SetFont(textio::FONT_A);
+					1: textio::ToggleLowerCase;
+					2: textio::SetFont(textio::FONT_B);
+					3: textio::ToggleLowerCase;
+					4: textio::SetFont(textio::FONT_C);
+					5: textio::ToggleLowerCase;
 				else 
 				begin
 					font := 0;
 				end;
+				textio::CharDef(2,#newChar);	// SetFont will overwrite our new char
 			end;
 			counter1 := 65535;
 		end;
