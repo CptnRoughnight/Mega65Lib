@@ -1,5 +1,5 @@
 # Mega65Lib
-TRSE Mega65 Library
+TRSE Mega65 Library !!! unfinished, Code will change !!!
 
 Attempt to write sort of standard library for the MEGA65 (https://mega65.org/) with TRSE (https://lemonspawn.com/turbo-rascal-syntax-error-expected-but-begin/)
 
