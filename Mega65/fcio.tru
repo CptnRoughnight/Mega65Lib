@@ -8,10 +8,206 @@
 unit fcio;
 
 
+@use "Mega65/system"
+@use "Mega65/memory"
+
 var
-	s : byte;
-	LogicalRowSize : integer;
-	RowSize : byte;
+	const WIDTH_320 : byte = 0;
+	const WIDTH_640 : byte = 1;
+	const HEIGHT_200 : byte = 0;
+	const HEIGHT_400 : byte = 1;
+	
+	isNCM : byte = 0;
+	
+
+
+/****************************************************************/
+/*	fcio::InitFCM												*/
+/*																*/
+/*	width			- ScreenWidth (640/320)						*/
+/*	height 			- ScreenHeight(400/200)						*/
+/*																*/	
+/****************************************************************/
+Procedure InitFCM(width,height : integer);
+begin
+		asm ("
+			sei
+			lda #$35
+			sta $01
+			; Disable CIA Interrupts
+			lda #$7f
+			sta $dc0d
+			sta $dd0d
+					
+		");
+		system::Enable40Mhz;
+		system::EnableVic4;
+		system::DisableC65Rom;
+		asm ("
+			; Disable IRQ raster interrupts
+			; because C65 uses raster interrupts in the ROM
+			lda #$00
+			sta $d01a
+			
+			; Unmap C64 Roms $d030 by clearing bits 3-7
+			lda #%11111000
+			trb $d030
+			cli
+		
+			; Disable Hot register to VIC2 register
+			lda #$80
+			trb $d05d
+			
+			; Disable Vic3 ATTR register to en4000able 8bit color
+			lda #$20
+			trb $d031
+			
+			; 25 lines
+			lda #25
+			sta $d07b 
+		
+			");
+			if (width=WIDTH_320) then
+			begin
+				asm("
+					; Disable H640
+					lda #%10000000
+					trb $d031
+				");
+			end else
+			begin
+				asm("
+					; Enable H640
+					lda #%10000000
+					tsb $d031
+				");
+			end;
+			
+			if (height=HEIGHT_200) then
+			begin
+				system::MAXY := 25;
+				asm("
+					; Disable V400
+					lda #%00001000
+					trb $d031
+				");
+			end else
+			begin
+				system::MAXY := 50;
+				asm("
+					; Enable V400
+					lda #%00001000
+					tsb $d031
+					
+				");
+			end;
+			
+			asm("
+			; 50 lines ?!?!?!
+			lda #50
+			sta $d07b 
+					
+			; Enable RAM palettes
+			lda #$04
+			tsb $d030
+			
+			; Turm on FCM mode and 16bit per char num
+			lda #$05
+			sta $d054
+			
+			; border and back color
+			lda #0
+			sta $d020
+			sta $d021
+			
+			; exclude Kernel+Basic rom
+			lda    $00
+        		ora    #$07
+        		sta    $00
+        
+			;lda #$1D
+			;sta $01
+		
+			; enable fine raster compare
+			lda #%10000111
+            	trb $d07a
+			lda #%10000000
+			trb $d053
+			lda #$68
+            	sta $d079
+		");
+	// Clear Color Ram
+	memory::Fill($ff08,$0000,system::MAXX*system::MAXY,$0000);
+	// Clear Screen Ram
+	memory::Fill(system::SCREEN_BANK,system::SCREEN_ADR,system::MAXX*system::MAXY,0);
+end;
+
+
+/****************************************************************/
+/*	fcio::ToggleNCM											*/
+/*																*/
+/*	Warning : overrides Attrib ram							*/
+/*																*/	
+/****************************************************************/
+Procedure ToggleNCM;
+var 
+	i : integer;
+begin
+	if isNCM=0 then
+	begin
+		isNCM := 1;
+		for i := 0 to system::MAXX*system::MAXY do
+			memory::Poke32($0ff8,i*2,%00001000);
+		// set MCM mode
+		asm("
+			lda #%00010000
+			tsb $D016
+		");
+	end else
+	begin
+		isNCM := 0;
+		memory::Fill($ff08,$0000,system::MAXX*system::MAXY,$0);
+		// reset MCM mode
+		asm("
+			lda #%00010000
+			trb $D016
+		");
+	end;
+end;
+
+
+
+
+/****************************************************************/
+/*	fcio::PutChar											*/
+/*																*/
+/*	x 				- x position								*/
+/*	y 				- y position								*/
+/*  ch 				- char to print								*/
+/*	c				- color									*/
+/*																*/	
+/****************************************************************/
+Procedure PutChar(x,y,ch,c:byte);
+begin
+	memory::Poke32(system::SCREEN_BANK,system::SCREEN_ADR+x*2+y*system::LogicalRowSize,ch);
+	memory::Poke32($ff8,1+x*2+y*system::LogicalRowSize,c);
+end;
+
+/****************************************************************/
+/*	fcio::PutTile											*/
+/*																*/
+/*	x 				- x position								*/
+/*	y 				- y position								*/
+/*  t 				- char (integer) to print					*/
+/*  pal				- pal index, only for ncm				*/
+/*																*/	
+/****************************************************************/
+Procedure PutTile(x,y:byte;t : integer;pal:byte);
+begin
+	memory::WPoke32(system::SCREEN_BANK,system::SCREEN_ADR+x*2+y*system::LogicalRowSize,t);
+	if (isNCM=1) then memory::WPoke32($ff8,1+x*2+y*system::LogicalRowSize,t shl 4);
+end;
+
 
 
 
