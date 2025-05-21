@@ -12,6 +12,9 @@
 /*		SetScreenBackground 	- Set Background and Border color	*/
 /*		PrintChar	- print char at location with color 		*/
 /*		PrintString 	- print string at location with color 	*/
+/*		SetFont		- set font 									*/
+/*		ToggleLowerCase	- toggles between uppercase and lowercase 	*/
+/*		CharDef		- replace a char with new data 				*/
 /*																*/		
 /****************************************************************/
 unit textio;
@@ -19,12 +22,18 @@ unit textio;
 @use "Mega65/memory"
 
 var
+	const FONT_A : byte = 0;
+	const FONT_B : byte = 1;
+	const FONT_C : byte = 2;
+
+	currentFont : byte = 0;
 	MAXX : byte = 80;
 	MAXY : byte = 25;
 	SCREEN_BANK : byte = 0;
 	SCREEN_ADR : integer = $0800;
 	CHAR_BANK : byte = 0;
 	CHAR_ADR : integer = 0;
+	isLowerCase : boolean = false;
 	s : ^byte;		// pointer for strings
 
 
@@ -207,6 +216,54 @@ begin
 		memory::Poke32($ff8,(x+i)+y*MAXX,c);
 		inc(i);
 	end;
+end;
+
+/****************************************************************/
+/*	textio::SetFont												*/
+/*																*/	
+/*	font		- font nr										*/
+/****************************************************************/
+procedure SetFont(font : byte);
+begin
+	case font of
+		FONT_A : memory::Copy($0002,$9000,CHAR_BANK,CHAR_ADR,4096);			
+		FONT_B : memory::Copy($0003,$D000,CHAR_BANK,CHAR_ADR,4096);
+		FONT_C : memory::Copy($0002,$D000,CHAR_BANK,CHAR_ADR,4096);	
+	end;
+	currentFont := font;
+end;
+
+
+/****************************************************************/
+/*	textio::ToggleLowerCase										*/
+/*																*/	
+/****************************************************************/
+procedure ToggleLowerCase;
+var 
+	d : integer;
+begin
+	if isLowerCase then
+		d := $000
+	else
+		d := $800;
+	
+	case currentFont of
+		FONT_A : memory::Copy($0002,$9000+d,CHAR_BANK,CHAR_ADR,4096);			
+		FONT_B : memory::Copy($0003,$D000+d,CHAR_BANK,CHAR_ADR,4096);
+		FONT_C : memory::Copy($0002,$D000+d,CHAR_BANK,CHAR_ADR,4096);	
+	end;
+end;
+
+/****************************************************************/
+/*	textio::CharDef												*/
+/*																*/
+/*	charNum			- char num to replace						*/
+/*	data 			- pointer to array of 8 byte -> chardata	*/
+/*																*/	
+/****************************************************************/
+procedure CharDef(charNum : byte;data : ^integer);
+begin
+	memory::Copy($0000,data,CHAR_BANK,CHAR_ADR+charNum*8,8);
 end;
 
 end.
