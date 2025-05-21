@@ -19,6 +19,7 @@
 /****************************************************************/
 unit textio;
 
+@use "Mega65/system"
 @use "Mega65/memory"
 
 var
@@ -27,12 +28,7 @@ var
 	const FONT_C : byte = 2;
 
 	currentFont : byte = 0;
-	MAXX : byte = 80;
-	MAXY : byte = 25;
-	SCREEN_BANK : byte = 0;
-	SCREEN_ADR : integer = $0800;
-	CHAR_BANK : byte = 0;
-	CHAR_ADR : integer = 0;
+
 	isLowerCase : boolean = false;
 	s : ^byte;		// pointer for strings
 
@@ -55,7 +51,7 @@ var
 /****************************************************************/
 procedure Set80x50;
 begin
-	MAXY := 50;
+	system::MAXY := 50;
 	asm("
 		lda #%10000000
 		tsb $d031
@@ -75,7 +71,7 @@ end;
 /****************************************************************/
 procedure Set80x25;
 begin
-	MAXY := 25;
+	system::MAXY := 25;
 	asm("
 		lda #%10000000
 		tsb $d031
@@ -95,8 +91,8 @@ end;
 /****************************************************************/
 procedure Set40x25;
 begin
-	MAXY := 25;
-	MAXX := 40;
+	system::MAXY := 25;
+	system::MAXX := 40;
 	asm("
 		lda #%10000000
 		trb $d031
@@ -118,70 +114,10 @@ end;
 /****************************************************************/
 procedure ClearScreen(ch,c : byte);
 begin
-	memory::Fill(SCREEN_BANK,SCREEN_ADR,MAXX*MAXY,ch);
-	memory::Fill($ff08,$0000,MAXX*MAXY,c);
+	memory::Fill(system::SCREEN_BANK,system::SCREEN_ADR,system::MAXX*system::MAXY,ch);
+	memory::Fill($ff08,$0000,system::MAXX*system::MAXY,c);
 end;
 
-
-/****************************************************************/
-/*	textio::ClearScreen											*/
-/*																*/	
-/*	back			- color background							*/
-/*	border		- color border									*/
-/*																*/ 
-/****************************************************************/
-procedure SetScreenBackground(back,border : byte);
-begin
-	asm("
-		lda localVariable_textio_SetScreenBackground_textio_back
-		sta $d020
-		lda localVariable_textio_SetScreenBackground_textio_border
-		sta $d021
-	");	
-end;
-
-
-/****************************************************************/
-/*	textio::SetCharLocation										*/
-/*																*/	
-/*	b			- Bank of charset location						*/
-/*	adr			- address of charset location					*/
-/*																*/
-/****************************************************************/
-procedure SetCharLocation(b:byte;adr : integer);
-begin
-	CHAR_BANK := b;
-	CHAR_ADR := adr;
-	asm("
-		lda localVariable_textio_SetCharLocation_textio_adr
-		sta 	$D068
-		lda localVariable_textio_SetCharLocation_textio_adr+1
-		sta $D069
-		lda localVariable_textio_SetCharLocation_textio_b
-		sta $D06A	
-	");	
-end;
-
-
-/****************************************************************/
-/*	textio::SetScreenLocation									*/
-/*																*/	
-/*	b			- Bank of screen Location						*/
-/*	adr			- address of screen Location					*/
-/****************************************************************/
-procedure SetScreenLocation(b:byte;adr : integer);
-begin
-	SCREEN_BANK := b;
-	SCREEN_ADR := adr;
-	asm("
-		lda localVariable_textio_SetScreenLocation_textio_b
-		sta $d062
-		lda localVariable_textio_SetScreenLocation_textio_adr
-		sta $d061
-		lda localVariable_textio_SetScreenLocation_textio_adr+1
-		sta $d060		
-	");
-end;
 
 
 /****************************************************************/
@@ -193,8 +129,8 @@ end;
 /****************************************************************/
 procedure PrintChar(x,y,ch,c : byte);
 begin
-	memory::Poke32(SCREEN_BANK,SCREEN_ADR+x+y*MAXX,ch);
-	memory::Poke32($ff8,x+y*MAXX,c);
+	memory::Poke32(system::SCREEN_BANK,system::SCREEN_ADR+x+y*system::MAXX,ch);
+	memory::Poke32($ff8,x+y*system::MAXX,c);
 end;
 
 
@@ -212,8 +148,8 @@ begin
 	i := 0;
 	while (s[i]<>0) do
 	begin
-		memory::Poke32(SCREEN_BANK,SCREEN_ADR+(x+i)+y*MAXX,s[i]);
-		memory::Poke32($ff8,(x+i)+y*MAXX,c);
+		memory::Poke32(system::SCREEN_BANK,system::SCREEN_ADR+(x+i)+y*system::MAXX,s[i]);
+		memory::Poke32($ff8,(x+i)+y*system::MAXX,c);
 		inc(i);
 	end;
 end;
@@ -226,9 +162,9 @@ end;
 procedure SetFont(font : byte);
 begin
 	case font of
-		FONT_A : memory::Copy($0002,$9000,CHAR_BANK,CHAR_ADR,4096);			
-		FONT_B : memory::Copy($0003,$D000,CHAR_BANK,CHAR_ADR,4096);
-		FONT_C : memory::Copy($0002,$D000,CHAR_BANK,CHAR_ADR,4096);	
+		FONT_A : memory::Copy($0002,$9000,system::CHAR_BANK,system::CHAR_ADR,4096);			
+		FONT_B : memory::Copy($0003,$D000,system::CHAR_BANK,system::CHAR_ADR,4096);
+		FONT_C : memory::Copy($0002,$D000,system::CHAR_BANK,system::CHAR_ADR,4096);	
 	end;
 	currentFont := font;
 end;
@@ -248,9 +184,9 @@ begin
 		d := $800;
 	
 	case currentFont of
-		FONT_A : memory::Copy($0002,$9000+d,CHAR_BANK,CHAR_ADR,4096);			
-		FONT_B : memory::Copy($0003,$D000+d,CHAR_BANK,CHAR_ADR,4096);
-		FONT_C : memory::Copy($0002,$D000+d,CHAR_BANK,CHAR_ADR,4096);	
+		FONT_A : memory::Copy($0002,$9000+d,system::CHAR_BANK,system::CHAR_ADR,4096);			
+		FONT_B : memory::Copy($0003,$D000+d,system::CHAR_BANK,system::CHAR_ADR,4096);
+		FONT_C : memory::Copy($0002,$D000+d,system::CHAR_BANK,system::CHAR_ADR,4096);	
 	end;
 end;
 
@@ -263,7 +199,7 @@ end;
 /****************************************************************/
 procedure CharDef(charNum : byte;data : ^integer);
 begin
-	memory::Copy($0000,data,CHAR_BANK,CHAR_ADR+charNum*8,8);
+	memory::Copy($0000,data,system::CHAR_BANK,system::CHAR_ADR+charNum*8,8);
 end;
 
 end.

@@ -13,8 +13,17 @@
 unit system;
 
 var
-	s : ^byte;
-	
+	SCREEN_BANK : byte = 0;
+	SCREEN_ADR : integer = $0800;
+	CHAR_BANK : byte = 0;
+	CHAR_ADR : integer = 0;
+	LogicalRowSize : integer;
+	RowSize : byte;
+	MAXX : byte = 80;
+	MAXY : byte = 25;
+
+
+
 
 /****************************************************************/
 /*	system::Enable40Mhz											*/
@@ -65,4 +74,83 @@ begin
 		");
 end;
 	
+
+
+/****************************************************************/
+/*	system::ClearScreen											*/
+/*																*/	
+/*	back		- color background								*/
+/*	border		- color border									*/
+/*																*/ 
+/****************************************************************/
+procedure SetScreenBackground(back,border : byte);
+begin
+	asm("
+		lda localVariable_system_SetScreenBackground_system_back
+		sta $d020
+		lda localVariable_system_SetScreenBackground_system_border
+		sta $d021
+	");	
+end;
+
+
+/****************************************************************/
+/*	system::SetCharLocation										*/
+/*																*/	
+/*	b			- Bank of charset location						*/
+/*	adr			- address of charset location					*/
+/*																*/
+/****************************************************************/
+procedure SetCharLocation(b:byte;adr : integer);
+begin
+	CHAR_BANK := b;
+	CHAR_ADR := adr;
+	asm("
+		lda localVariable_system_SetCharLocation_system_adr
+		sta 	$D068
+		lda localVariable_system_SetCharLocation_system_adr+1
+		sta $D069
+		lda localVariable_system_SetCharLocation_system_b
+		sta $D06A	
+	");	
+end;
+
+
+/****************************************************************/
+/*	system::SetScreenLocation									*/
+/*																*/	
+/*	b			- Bank of screen Location						*/
+/*	adr			- address of screen Location					*/
+/****************************************************************/
+procedure SetScreenLocation(b:byte;adr : integer);
+begin
+	SCREEN_BANK := b;
+	SCREEN_ADR := adr;
+	asm("
+		lda localVariable_system_SetScreenLocation_system_b
+		sta $d062
+		lda localVariable_system_SetScreenLocation_system_adr
+		sta $d061
+		lda localVariable_system_SetScreenLocation_system_adr+1
+		sta $d060		
+	");
+end;
+
+
+/****************************************************************/
+/*	system::SetRowSize											*/
+/*																*/
+/*	newSize			- new row size in byte						*/
+/*																*/	
+/****************************************************************/
+Procedure SetRowSize(newSize : byte);
+begin
+	MAXX := newSize;
+	RowSize := newSize;
+	LogicalRowSize := newSize*2;
+	POKE(^$D05E,0,newSize);
+	POKE(^$D058,0,LogicalRowSize&$ff);
+	POKE(^$D059,0,(LogicalRowSize>>8)&$ff);
+end;
+
 end.

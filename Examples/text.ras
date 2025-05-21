@@ -7,6 +7,7 @@
 /****************************************************************/
 program text;
 
+@use "Mega65/system"
 @use "Mega65/textio"
 
 var 
@@ -23,10 +24,10 @@ begin
 //	textio::Set80x25();  // no need to move the screen ram
 	
 //	textio::Set80x50();	// ! move the screen ram
-	textio::SetCharLocation($0004,$0000);		// set char location to $40000
-	textio::SetScreenLocation($0005,$0000);		// new screen location $50000
+	system::SetCharLocation($0004,$0000);		// set char location to $40000
+	system::SetScreenLocation($0005,$0000);		// new screen location $50000
 	
-	textio::SetScreenBackground(1,8);
+	system::SetScreenBackground(1,8);
 	textio::ClearScreen(1,6);
 	
 
