@@ -24,64 +24,70 @@ endd_s:
 	; Ending memory block at $2001
 	; Resuming memory block at $2001
 text:
-	; LineNumber: 20
+	; LineNumber: 19
 	jmp block1
-	; LineNumber: 24
+	; LineNumber: 22
 textio_MAXX:	.byte	$50
-	; LineNumber: 25
+	; LineNumber: 23
 textio_MAXY:	.byte	$19
-	; LineNumber: 26
+	; LineNumber: 24
 textio_SCREEN_BANK:	.byte	$00
-	; LineNumber: 27
+	; LineNumber: 25
 textio_SCREEN_ADR:	.word	$800
-	; LineNumber: 28
+	; LineNumber: 26
 textio_CHAR_BANK:	.byte	$00
-	; LineNumber: 29
+	; LineNumber: 27
 textio_CHAR_ADR:	.word	$00
-	; LineNumber: 30
+	; LineNumber: 28
 textio_s	= $02
-	; LineNumber: 38
+	; LineNumber: 36
 textio_COLORS:	.byte $0, $1, $2, $3, $4, $5, $6, $7
 	.byte $8, $9, $a, $b, $c, $d, $e, $f
 	.byte $40, $41, $42, $43, $44, $45, $46, $47
 	.byte $48, $49, $4a, $4b, $4c, $4d, $4e, $4f
-	; LineNumber: 14
+	; LineNumber: 13
 counter1:	.word	0
-	; LineNumber: 15
+	; LineNumber: 14
 counter2:	.word	0
-	; LineNumber: 16
+	; LineNumber: 15
 font:	.byte	0
-	; LineNumber: 17
+	; LineNumber: 16
 i:	.byte	0
-	; LineNumber: 18
+	; LineNumber: 17
 hello:		.asciiz	"HELLO WORLD"
 
 	; NodeProcedureDecl -1
-	; ***********  Defining procedure : initprintstring
+	; ***********  Defining procedure : initeightbitmul
 	;    Procedure type : Built-in function
 	;    Requires initialization : no
-print_text = $4c
-print_number_text: .asciiz "    "
-printstring:
-	ldy #0
-printstringloop:
-	lda (print_text),y
-	cmp #0 ;keep
-	beq printstring_done
-	cmp #64
-	bcc printstring_skip
-	sec
-	sbc #64
-printstring_skip:
-	sta (screenmemory),y
-	iny
+multiplier = $4c
+multiplier_a = $4e
+multiply_eightbit:
+	cpx #$00
+	beq mul_end
 	dex
-	cpx #0
-	beq printstring_done
-	jmp printstringloop
-printstring_done:
+	stx $4e
+	lsr
+	sta multiplier
+	lda #$00
+	ldx #$08
+mul_loop:
+	bcc mul_skip
+mul_mod:
+	adc multiplier_a
+mul_skip:
+	ror
+	ror multiplier
+	dex
+	bne mul_loop
+	ldx multiplier
 	rts
-end_procedure_initprintstring:
+mul_end:
+	txa
+	rts
+initeightbitmul_multiply_eightbit2:
+	rts
+end_procedure_initeightbitmul:
 	; NodeProcedureDecl -1
 	; ***********  Defining procedure : init16x8mul
 	;    Procedure type : Built-in function
@@ -114,7 +120,7 @@ end_procedure_init16x8mul:
 	; ***********  Defining procedure : initmoveto
 	;    Procedure type : Built-in function
 	;    Requires initialization : no
-	jmp initmoveto_moveto2
+	jmp initmoveto_moveto3
 screenmemory =  $fe
 colormemory =  $fb
 screen_x = $4c
@@ -143,41 +149,35 @@ sydone:
 sxdone:
 	sta screenmemory
 	rts
-initmoveto_moveto2:
+initmoveto_moveto3:
 	rts
 end_procedure_initmoveto:
 	; NodeProcedureDecl -1
-	; ***********  Defining procedure : initeightbitmul
+	; ***********  Defining procedure : initprintstring
 	;    Procedure type : Built-in function
 	;    Requires initialization : no
-multiplier = $4c
-multiplier_a = $4e
-multiply_eightbit:
-	cpx #$00
-	beq mul_end
+print_text = $4c
+print_number_text: .asciiz "    "
+printstring:
+	ldy #0
+printstringloop:
+	lda (print_text),y
+	cmp #0 ;keep
+	beq printstring_done
+	cmp #64
+	bcc printstring_skip
+	sec
+	sbc #64
+printstring_skip:
+	sta (screenmemory),y
+	iny
 	dex
-	stx $4e
-	lsr
-	sta multiplier
-	lda #$00
-	ldx #$08
-mul_loop:
-	bcc mul_skip
-mul_mod:
-	adc multiplier_a
-mul_skip:
-	ror
-	ror multiplier
-	dex
-	bne mul_loop
-	ldx multiplier
+	cpx #0
+	beq printstring_done
+	jmp printstringloop
+printstring_done:
 	rts
-mul_end:
-	txa
-	rts
-initeightbitmul_multiply_eightbit3:
-	rts
-end_procedure_initeightbitmul:
+end_procedure_initprintstring:
 	; NodeProcedureDecl -1
 	; ***********  Defining procedure : memory_Fill
 	;    Procedure type : User-defined procedure
@@ -232,7 +232,7 @@ memory_Fill:
 	; LineNumber: 69
 	rts
 end_procedure_memory_Fill:
-	;*************************************************	memory::Poke32								 												 	adrhi   - High-integer of address				 	adrlo 	- High-integer of address		     	val 	    - Value to poke						 												 *************************************************
+	;**************************************************************	memory::Poke32								 																 					adrhi   - High-integer of address				 				adrlo 	- High-integer of address		     					val 	    - Value to poke						 															 				**************************************************************
 	; NodeProcedureDecl -1
 	; ***********  Defining procedure : memory_Poke32
 	;    Procedure type : User-defined procedure
@@ -262,44 +262,41 @@ memory_Poke32:
 	; LineNumber: 153
 	rts
 end_procedure_memory_Poke32:
-	;************************************************	textio::Set40x25																																************************************************
+	;**************************************************************	TRSE Mega65 StdLib												textio.TRU																														Procedures:															Set80x50 	- set 80x50 textmode								Set80x25		- set 80x25 textmode							Set40x25		- set 40x25 textmode							ClearScreen	- Clear screen with char and color					SetScreenLocation	- Set memory address of screen 				SetCharLocation	- Set memory address of chardata				SetScreenBackground 	- Set Background and Border color			PrintChar	- print char at location with color 				PrintString 	- print string at location with color 																	**************************************************************
+; // pointer for strings**************************************************************	textio::COLOR																																												****************************************************************************************************************************	textio::Set80x50																																											**************************************************************
 	; NodeProcedureDecl -1
-	; ***********  Defining procedure : textio_Set40x25
+	; ***********  Defining procedure : textio_Set80x50
 	;    Procedure type : User-defined procedure
-	; LineNumber: 90
-textio_Set40x25:
-	; LineNumber: 91
-	lda #$19
+	; LineNumber: 48
+textio_Set80x50:
+	; LineNumber: 49
+	lda #$32
 	; Calling storevariable on generic assign expression
 	sta textio_MAXY
-	; LineNumber: 92
-	lda #$28
-	; Calling storevariable on generic assign expression
-	sta textio_MAXX
-	; LineNumber: 93
+	; LineNumber: 50
 		lda #%10000000
-		trb $d031
+		tsb $d031
 		
 		lda #%00001000
-		trb $d031
+		tsb $d031
 		
-		lda #25
+		lda #50
 		sta $d07b	
 	
-	; LineNumber: 103
+	; LineNumber: 60
 	rts
-end_procedure_textio_Set40x25:
+end_procedure_textio_Set80x50:
 	; NodeProcedureDecl -1
 	; ***********  Defining procedure : textio_ClearScreen
 	;    Procedure type : User-defined procedure
-	; LineNumber: 113
-	; LineNumber: 112
+	; LineNumber: 111
+	; LineNumber: 110
 localVariable_textio_ClearScreen_textio_ch:	.byte	0
-	; LineNumber: 112
+	; LineNumber: 110
 localVariable_textio_ClearScreen_textio_c:	.byte	0
 textio_ClearScreen_block7:
 textio_ClearScreen:
-	; LineNumber: 114
+	; LineNumber: 112
 	ldy #0 ; Fake 16 bit
 	lda textio_SCREEN_BANK
 	; Calling storevariable on generic assign expression
@@ -331,7 +328,7 @@ textio_ClearScreen:
 	sta localVariable_memory_Fill_memory_value
 	sty localVariable_memory_Fill_memory_value+1
 	jsr memory_Fill
-	; LineNumber: 115
+	; LineNumber: 113
 	; Integer constant assigning
 	; Load16bitvariable : #$ff08
 	ldy #$ff
@@ -363,81 +360,81 @@ textio_ClearScreen:
 	sta localVariable_memory_Fill_memory_value
 	sty localVariable_memory_Fill_memory_value+1
 	jsr memory_Fill
-	; LineNumber: 116
+	; LineNumber: 114
 	rts
 end_procedure_textio_ClearScreen:
 	; NodeProcedureDecl -1
 	; ***********  Defining procedure : textio_SetScreenBackground
 	;    Procedure type : User-defined procedure
-	; LineNumber: 127
-	; LineNumber: 126
+	; LineNumber: 125
+	; LineNumber: 124
 localVariable_textio_SetScreenBackground_textio_back:	.byte	0
-	; LineNumber: 126
+	; LineNumber: 124
 localVariable_textio_SetScreenBackground_textio_border:	.byte	0
 textio_SetScreenBackground_block8:
 textio_SetScreenBackground:
-	; LineNumber: 128
+	; LineNumber: 126
 		lda localVariable_textio_SetScreenBackground_textio_back
 		sta $d020
 		lda localVariable_textio_SetScreenBackground_textio_border
 		sta $d021
 	
-	; LineNumber: 134
+	; LineNumber: 132
 	rts
 end_procedure_textio_SetScreenBackground:
-	;************************************************	textio::SetCharLocation																			b			- Bank of charset location			adr			- address of charset location														************************************************
+	;**************************************************************	textio::SetCharLocation																											b			- Bank of charset location							adr			- address of charset location																					**************************************************************
 	; NodeProcedureDecl -1
 	; ***********  Defining procedure : textio_SetCharLocation
 	;    Procedure type : User-defined procedure
-	; LineNumber: 145
-	; LineNumber: 144
+	; LineNumber: 143
+	; LineNumber: 142
 localVariable_textio_SetCharLocation_textio_b:	.byte	0
-	; LineNumber: 144
+	; LineNumber: 142
 localVariable_textio_SetCharLocation_textio_adr:	.word	0
 textio_SetCharLocation_block9:
 textio_SetCharLocation:
-	; LineNumber: 146
+	; LineNumber: 144
 	lda localVariable_textio_SetCharLocation_textio_b
 	; Calling storevariable on generic assign expression
 	sta textio_CHAR_BANK
-	; LineNumber: 147
+	; LineNumber: 145
 	ldy localVariable_textio_SetCharLocation_textio_adr+1 ;keep
 	lda localVariable_textio_SetCharLocation_textio_adr
 	; Calling storevariable on generic assign expression
 	sta textio_CHAR_ADR
 	sty textio_CHAR_ADR+1
-	; LineNumber: 148
+	; LineNumber: 146
 		sta 	$D068
 		lda localVariable_textio_SetCharLocation_textio_adr+1
 		sta $D069
 		lda localVariable_textio_SetCharLocation_textio_b
 		sta $D06A	
 	
-	; LineNumber: 156
+	; LineNumber: 154
 	rts
 end_procedure_textio_SetCharLocation:
-	;************************************************	textio::SetScreenLocation																		b			- Bank of screen Location			adr			- address of screen Location		************************************************
+	;**************************************************************	textio::SetScreenLocation																										b			- Bank of screen Location							adr			- address of screen Location					**************************************************************
 	; NodeProcedureDecl -1
 	; ***********  Defining procedure : textio_SetScreenLocation
 	;    Procedure type : User-defined procedure
-	; LineNumber: 166
-	; LineNumber: 165
+	; LineNumber: 164
+	; LineNumber: 163
 localVariable_textio_SetScreenLocation_textio_b:	.byte	0
-	; LineNumber: 165
+	; LineNumber: 163
 localVariable_textio_SetScreenLocation_textio_adr:	.word	0
 textio_SetScreenLocation_block10:
 textio_SetScreenLocation:
-	; LineNumber: 167
+	; LineNumber: 165
 	lda localVariable_textio_SetScreenLocation_textio_b
 	; Calling storevariable on generic assign expression
 	sta textio_SCREEN_BANK
-	; LineNumber: 168
+	; LineNumber: 166
 	ldy localVariable_textio_SetScreenLocation_textio_adr+1 ;keep
 	lda localVariable_textio_SetScreenLocation_textio_adr
 	; Calling storevariable on generic assign expression
 	sta textio_SCREEN_ADR
 	sty textio_SCREEN_ADR+1
-	; LineNumber: 169
+	; LineNumber: 167
 		lda localVariable_textio_SetScreenLocation_textio_b
 		sta $d062
 		lda localVariable_textio_SetScreenLocation_textio_adr
@@ -445,24 +442,24 @@ textio_SetScreenLocation:
 		lda localVariable_textio_SetScreenLocation_textio_adr+1
 		sta $d060		
 	
-	; LineNumber: 177
+	; LineNumber: 175
 	rts
 end_procedure_textio_SetScreenLocation:
 	; NodeProcedureDecl -1
 	; ***********  Defining procedure : textio_PrintChar
 	;    Procedure type : User-defined procedure
-	; LineNumber: 188
-	; LineNumber: 187
+	; LineNumber: 186
+	; LineNumber: 185
 localVariable_textio_PrintChar_textio_x:	.byte	0
-	; LineNumber: 187
+	; LineNumber: 185
 localVariable_textio_PrintChar_textio_y:	.byte	0
-	; LineNumber: 187
+	; LineNumber: 185
 localVariable_textio_PrintChar_textio_ch:	.byte	0
-	; LineNumber: 187
+	; LineNumber: 185
 localVariable_textio_PrintChar_textio_c:	.byte	0
 textio_PrintChar_block11:
 textio_PrintChar:
-	; LineNumber: 189
+	; LineNumber: 187
 	ldy #0 ; Fake 16 bit
 	lda textio_SCREEN_BANK
 	; Calling storevariable on generic assign expression
@@ -510,7 +507,7 @@ textio_PrintChar_wordAdd12:
 	; Calling storevariable on generic assign expression
 	sta localVariable_memory_Poke32_memory_val
 	jsr memory_Poke32
-	; LineNumber: 190
+	; LineNumber: 188
 	; Integer constant assigning
 	; Load16bitvariable : #$ff8
 	ldy #$0f
@@ -551,28 +548,28 @@ textio_PrintChar_wordAdd17:
 	; Calling storevariable on generic assign expression
 	sta localVariable_memory_Poke32_memory_val
 	jsr memory_Poke32
-	; LineNumber: 191
+	; LineNumber: 189
 	rts
 end_procedure_textio_PrintChar:
 	; NodeProcedureDecl -1
 	; ***********  Defining procedure : textio_PrintString
 	;    Procedure type : User-defined procedure
-	; LineNumber: 204
-	; LineNumber: 203
+	; LineNumber: 202
+	; LineNumber: 201
 localVariable_textio_PrintString_textio_i:	.byte	0
-	; LineNumber: 201
+	; LineNumber: 199
 localVariable_textio_PrintString_textio_x:	.byte	0
-	; LineNumber: 201
+	; LineNumber: 199
 localVariable_textio_PrintString_textio_y:	.byte	0
-	; LineNumber: 201
+	; LineNumber: 199
 localVariable_textio_PrintString_textio_c:	.byte	0
 textio_PrintString_block20:
 textio_PrintString:
-	; LineNumber: 205
+	; LineNumber: 203
 	lda #$0
 	; Calling storevariable on generic assign expression
 	sta localVariable_textio_PrintString_textio_i
-	; LineNumber: 206
+	; LineNumber: 204
 textio_PrintString_while21:
 textio_PrintString_loopstart25:
 	; Binary clause Simplified: NOTEQUALS
@@ -586,8 +583,8 @@ textio_PrintString_loopstart25:
 textio_PrintString_localfailed41:
 	jmp textio_PrintString_edblock24
 textio_PrintString_ctb22: ;Main true block ;keep:
-	; LineNumber: 207
-	; LineNumber: 208
+	; LineNumber: 205
+	; LineNumber: 206
 	ldy #0 ; Fake 16 bit
 	lda textio_SCREEN_BANK
 	; Calling storevariable on generic assign expression
@@ -610,7 +607,7 @@ textio_PrintString_rightvarInteger_var45 = $54
 	; Generic 16 bit op
 	ldy textio_SCREEN_ADR+1 ;keep
 	lda textio_SCREEN_ADR
-textio_PrintString_rightvarInteger_var48 =  $56
+textio_PrintString_rightvarInteger_var48 = $56
 	sta textio_PrintString_rightvarInteger_var48
 	sty textio_PrintString_rightvarInteger_var48+1
 	; HandleVarBinopB16bit
@@ -653,7 +650,7 @@ textio_PrintString_wordAdd43:
 	; Calling storevariable on generic assign expression
 	sta localVariable_memory_Poke32_memory_val
 	jsr memory_Poke32
-	; LineNumber: 209
+	; LineNumber: 207
 	; Integer constant assigning
 	; Load16bitvariable : #$ff8
 	ldy #$0f
@@ -703,27 +700,27 @@ textio_PrintString_wordAdd51:
 	; Calling storevariable on generic assign expression
 	sta localVariable_memory_Poke32_memory_val
 	jsr memory_Poke32
-	; LineNumber: 210
+	; LineNumber: 208
 	; Test Inc dec D
 	inc localVariable_textio_PrintString_textio_i
-	; LineNumber: 211
+	; LineNumber: 209
 	jmp textio_PrintString_while21
 textio_PrintString_edblock24:
 textio_PrintString_loopend26:
-	; LineNumber: 212
+	; LineNumber: 210
 	rts
 end_procedure_textio_PrintString:
 block1:
 main_block_begin_:
-	; LineNumber: 21
-	;************************************************	TRSE Mega65 StdLib								Example : text.ras																				Shows usage of textio unit																	************************************************
-	jsr textio_Set40x25
-	; LineNumber: 25
-	
+	; LineNumber: 23
+	;**************************************************************	TRSE Mega65 StdLib												Example : text.ras																												Shows usage of textio unit																									**************************************************************
+; //	textio::Set40x25();	
 ; // no need to move the screen ram
 ; //	textio::Set80x25();  
 ; // no need to move the screen ram
-; //textio::Set80x50();	
+	jsr textio_Set80x50
+	; LineNumber: 24
+	
 ; // ! move the screen ram
 	lda #$5
 	; Calling storevariable on generic assign expression
@@ -734,7 +731,7 @@ main_block_begin_:
 	sta localVariable_textio_SetScreenLocation_textio_adr
 	sty localVariable_textio_SetScreenLocation_textio_adr+1
 	jsr textio_SetScreenLocation
-	; LineNumber: 27
+	; LineNumber: 26
 	lda #$1
 	; Calling storevariable on generic assign expression
 	sta localVariable_textio_SetScreenBackground_textio_back
@@ -742,7 +739,7 @@ main_block_begin_:
 	; Calling storevariable on generic assign expression
 	sta localVariable_textio_SetScreenBackground_textio_border
 	jsr textio_SetScreenBackground
-	; LineNumber: 28
+	; LineNumber: 27
 	lda #$1
 	; Calling storevariable on generic assign expression
 	sta localVariable_textio_ClearScreen_textio_ch
@@ -750,7 +747,7 @@ main_block_begin_:
 	; Calling storevariable on generic assign expression
 	sta localVariable_textio_ClearScreen_textio_c
 	jsr textio_ClearScreen
-	; LineNumber: 29
+	; LineNumber: 28
 	lda #$2
 	; Calling storevariable on generic assign expression
 	sta localVariable_textio_SetCharLocation_textio_b
@@ -762,11 +759,11 @@ main_block_begin_:
 	sta localVariable_textio_SetCharLocation_textio_adr
 	sty localVariable_textio_SetCharLocation_textio_adr+1
 	jsr textio_SetCharLocation
-	; LineNumber: 30
+	; LineNumber: 29
 	lda #$0
 	; Calling storevariable on generic assign expression
 	sta font
-	; LineNumber: 31
+	; LineNumber: 30
 	; Integer constant assigning
 	; Load16bitvariable : #$ffff
 	ldy #$ff
@@ -774,19 +771,19 @@ main_block_begin_:
 	; Calling storevariable on generic assign expression
 	sta counter1
 	sty counter1+1
-	; LineNumber: 32
+	; LineNumber: 31
 	ldy #0   ; Force integer assignment, set y = 0 for values lower than 255
 	lda #$2
 	; Calling storevariable on generic assign expression
 	sta counter2
 	sty counter2+1
-	; LineNumber: 38
+	; LineNumber: 37
 	lda #$0
 	; Calling storevariable on generic assign expression
 	sta i
 MainProgram_forloop56:
+	; LineNumber: 34
 	; LineNumber: 35
-	; LineNumber: 36
 	lda i
 	; Calling storevariable on generic assign expression
 	sta localVariable_textio_PrintChar_textio_x
@@ -803,7 +800,7 @@ MainProgram_forloop56:
 	; Calling storevariable on generic assign expression
 	sta localVariable_textio_PrintChar_textio_c
 	jsr textio_PrintChar
-	; LineNumber: 37
+	; LineNumber: 36
 MainProgram_loopstart57:
 	; Compare is onpage
 	; Test Inc dec D
@@ -813,7 +810,7 @@ MainProgram_loopstart57:
 	bne MainProgram_forloop56
 MainProgram_loopdone61: ;keep:
 MainProgram_loopend58:
-	; LineNumber: 39
+	; LineNumber: 38
 	lda #<hello
 	ldx #>hello
 	sta textio_s
@@ -828,7 +825,7 @@ MainProgram_loopend58:
 	; Calling storevariable on generic assign expression
 	sta localVariable_textio_PrintString_textio_c
 	jsr textio_PrintString
-	; LineNumber: 41
+	; LineNumber: 40
 MainProgram_while62:
 MainProgram_loopstart66:
 	; Binary clause Simplified: NOTEQUALS
@@ -840,8 +837,8 @@ MainProgram_loopstart66:
 MainProgram_localfailed149:
 	jmp MainProgram_edblock65
 MainProgram_ctb63: ;Main true block ;keep:
+	; LineNumber: 41
 	; LineNumber: 42
-	; LineNumber: 43
 	
 ; // cycle endlessly through fonts
 	lda counter1
@@ -852,7 +849,7 @@ MainProgram_ctb63: ;Main true block ;keep:
 	bcs MainProgram_WordAdd151
 	dec counter1+1
 MainProgram_WordAdd151:
-	; LineNumber: 44
+	; LineNumber: 43
 	; Binary clause INTEGER: EQUALS
 	lda counter1+1   ; compare high bytes
 	cmp #$00 ;keep
@@ -864,8 +861,8 @@ MainProgram_WordAdd151:
 MainProgram_localfailed193:
 	jmp MainProgram_edblock155
 MainProgram_ctb153: ;Main true block ;keep:
+	; LineNumber: 44
 	; LineNumber: 45
-	; LineNumber: 46
 	lda counter2
 	sec
 	sbc #$01
@@ -874,7 +871,7 @@ MainProgram_ctb153: ;Main true block ;keep:
 	bcs MainProgram_WordAdd195
 	dec counter2+1
 MainProgram_WordAdd195:
-	; LineNumber: 47
+	; LineNumber: 46
 	; Binary clause INTEGER: EQUALS
 	lda counter2+1   ; compare high bytes
 	cmp #$00 ;keep
@@ -886,21 +883,21 @@ MainProgram_WordAdd195:
 MainProgram_localfailed215:
 	jmp MainProgram_edblock199
 MainProgram_ctb197: ;Main true block ;keep:
+	; LineNumber: 47
 	; LineNumber: 48
-	; LineNumber: 49
 	ldy #0   ; Force integer assignment, set y = 0 for values lower than 255
 	lda #$2
 	; Calling storevariable on generic assign expression
 	sta counter2
 	sty counter2+1
-	; LineNumber: 50
+	; LineNumber: 49
 	; Test Inc dec D
 	inc font
-	; LineNumber: 51
+	; LineNumber: 50
 	lda #$0
 	cmp font ;keep
 	bne MainProgram_casenext218
-	; LineNumber: 51
+	; LineNumber: 50
 	lda #$2
 	; Calling storevariable on generic assign expression
 	sta localVariable_textio_SetCharLocation_textio_b
@@ -917,7 +914,7 @@ MainProgram_casenext218:
 	lda #$1
 	cmp font ;keep
 	bne MainProgram_casenext220
-	; LineNumber: 52
+	; LineNumber: 51
 	lda #$2
 	; Calling storevariable on generic assign expression
 	sta localVariable_textio_SetCharLocation_textio_b
@@ -934,7 +931,7 @@ MainProgram_casenext220:
 	lda #$2
 	cmp font ;keep
 	bne MainProgram_casenext222
-	; LineNumber: 53
+	; LineNumber: 52
 	lda #$3
 	; Calling storevariable on generic assign expression
 	sta localVariable_textio_SetCharLocation_textio_b
@@ -951,7 +948,7 @@ MainProgram_casenext222:
 	lda #$3
 	cmp font ;keep
 	bne MainProgram_casenext224
-	; LineNumber: 54
+	; LineNumber: 53
 	lda #$3
 	; Calling storevariable on generic assign expression
 	sta localVariable_textio_SetCharLocation_textio_b
@@ -968,7 +965,7 @@ MainProgram_casenext224:
 	lda #$4
 	cmp font ;keep
 	bne MainProgram_casenext226
-	; LineNumber: 55
+	; LineNumber: 54
 	lda #$2
 	; Calling storevariable on generic assign expression
 	sta localVariable_textio_SetCharLocation_textio_b
@@ -985,7 +982,7 @@ MainProgram_casenext226:
 	lda #$5
 	cmp font ;keep
 	bne MainProgram_casenext228
-	; LineNumber: 56
+	; LineNumber: 55
 	lda #$2
 	; Calling storevariable on generic assign expression
 	sta localVariable_textio_SetCharLocation_textio_b
@@ -999,16 +996,16 @@ MainProgram_casenext226:
 	jsr textio_SetCharLocation
 	jmp MainProgram_caseend217
 MainProgram_casenext228:
+	; LineNumber: 58
 	; LineNumber: 59
-	; LineNumber: 60
 	lda #$0
 	; Calling storevariable on generic assign expression
 	sta font
-	; LineNumber: 61
+	; LineNumber: 60
 MainProgram_caseend217:
-	; LineNumber: 62
+	; LineNumber: 61
 MainProgram_edblock199:
-	; LineNumber: 63
+	; LineNumber: 62
 	; Integer constant assigning
 	; Load16bitvariable : #$ffff
 	ldy #$ff
@@ -1016,13 +1013,13 @@ MainProgram_edblock199:
 	; Calling storevariable on generic assign expression
 	sta counter1
 	sty counter1+1
-	; LineNumber: 64
+	; LineNumber: 63
 MainProgram_edblock155:
-	; LineNumber: 65
+	; LineNumber: 64
 	jmp MainProgram_while62
 MainProgram_edblock65:
 MainProgram_loopend67:
-	; LineNumber: 66
+	; LineNumber: 65
 main_block_end_:
 	; End of program
 	; Ending memory block at $2001
