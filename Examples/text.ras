@@ -20,10 +20,10 @@ var
 	newChar : Array[8] of byte = (%01111110,%11111111,%11011011,%11111111,%11000011,%11100111,%11111111,%01111110);
 	
 begin
-	textio::Set40x25();	// no need to move the screen ram
+//	textio::Set40x25();	// no need to move the screen ram
 //	textio::Set80x25();  // no need to move the screen ram
 	
-//	textio::Set80x50();	// ! move the screen ram
+	textio::Set80x50();	// ! move the screen ram
 	system::SetCharLocation($0004,$0000);		// set char location to $40000
 	system::SetScreenLocation($0005,$0000);		// new screen location $50000
 	

@@ -21,7 +21,20 @@ var
 	RowSize : byte;
 	MAXX : byte = 80;
 	MAXY : byte = 25;
+	
+	TOP_BORDER : integer;
+	LEFT_BORDER : integer;
+	BOTTOM_BORDER : integer;
+	SCR_WIDTH : integer;
+	SCR_HEIGHT : integer;
+	
+	HPIXEL_SCALE : byte;
+	VPIXEL_SCALE : byte;
+	
+	TEXTYPOS : integer;
 
+	HORIZONTAL_CENTER : integer = 400;
+	VERTICAL_CENTER : integer = 304;			// change for NTSC to 242
 
 
 
@@ -144,24 +157,41 @@ end;
 /*																*/	
 /****************************************************************/
 Procedure SetRowSize(newSize : byte);
+var 
+	h : byte;
 begin
-	MAXX := newSize;
-	
 	RowSize := newSize;
 	LogicalRowSize := newSize*2;
-	
+	h := (LogicalRowSize shr 4) & $ff;
 	asm("
-		lda localVariable_system_SetRowSize_system_newSize
+		lda system_RowSize
 		sta $d05e
 		lda $d063
 		and #$cf
-		ora #((system_LogicalRowSize+1) & $03) << 4
+		ora localVariable_system_SetRowSize_system_h & $03 << 4
 		sta $d063	
 		
 		lda system_LogicalRowSize
 		sta $d058
 		lda system_LogicalRowSize+1
 		sta $d059
+	");
+end;
+
+
+/****************************************************************/
+/*	system::SetNumRows															*/
+/*																						*/
+/*	rows				- new num of rows											*/
+/*																						*/	
+/****************************************************************/
+Procedure SetNumRows(rows : byte);
+begin
+	
+	
+	asm("
+		lda localVariable_system_SetNumRows_system_rows
+		sta $d07b
 	");
 end;
 

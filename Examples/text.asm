@@ -91,68 +91,6 @@ mul16x8_enterLoop:
 	rts
 end_procedure_init16x8mul:
 	; NodeProcedureDecl -1
-	; ***********  Defining procedure : initmoveto
-	;    Procedure type : Built-in function
-	;    Requires initialization : no
-	jmp initmoveto_moveto2
-screenmemory =  $fe
-colormemory =  $fb
-screen_x = $4c
-screen_y = $4e
-SetScreenPosition:
-	sta screenmemory+1
-	lda #0
-	sta screenmemory
-	ldy screen_y
-	beq sydone
-syloop:
-	clc
-	adc #80
-	bcc sskip
-	inc screenmemory+1
-sskip:
-	dey
-	bne syloop
-sydone:
-	ldx screen_x
-	beq sxdone
-	clc
-	adc screen_x
-	bcc sxdone
-	inc screenmemory+1
-sxdone:
-	sta screenmemory
-	rts
-initmoveto_moveto2:
-	rts
-end_procedure_initmoveto:
-	; NodeProcedureDecl -1
-	; ***********  Defining procedure : initprintstring
-	;    Procedure type : Built-in function
-	;    Requires initialization : no
-print_text = $4c
-print_number_text: .asciiz "    "
-printstring:
-	ldy #0
-printstringloop:
-	lda (print_text),y
-	cmp #0 ;keep
-	beq printstring_done
-	cmp #64
-	bcc printstring_skip
-	sec
-	sbc #64
-printstring_skip:
-	sta (screenmemory),y
-	iny
-	dex
-	cpx #0
-	beq printstring_done
-	jmp printstringloop
-printstring_done:
-	rts
-end_procedure_initprintstring:
-	; NodeProcedureDecl -1
 	; ***********  Defining procedure : initeightbitmul
 	;    Procedure type : Built-in function
 	;    Requires initialization : no
@@ -181,81 +119,143 @@ mul_skip:
 mul_end:
 	txa
 	rts
-initeightbitmul_multiply_eightbit3:
+initeightbitmul_multiply_eightbit2:
 	rts
 end_procedure_initeightbitmul:
 	; NodeProcedureDecl -1
+	; ***********  Defining procedure : initprintstring
+	;    Procedure type : Built-in function
+	;    Requires initialization : no
+print_text = $4c
+print_number_text: .asciiz "    "
+printstring:
+	ldy #0
+printstringloop:
+	lda (print_text),y
+	cmp #0 ;keep
+	beq printstring_done
+	cmp #64
+	bcc printstring_skip
+	sec
+	sbc #64
+printstring_skip:
+	sta (screenmemory),y
+	iny
+	dex
+	cpx #0
+	beq printstring_done
+	jmp printstringloop
+printstring_done:
+	rts
+end_procedure_initprintstring:
+	; NodeProcedureDecl -1
+	; ***********  Defining procedure : initmoveto
+	;    Procedure type : Built-in function
+	;    Requires initialization : no
+	jmp initmoveto_moveto3
+screenmemory =  $fe
+colormemory =  $fb
+screen_x = $4c
+screen_y = $4e
+SetScreenPosition:
+	sta screenmemory+1
+	lda #0
+	sta screenmemory
+	ldy screen_y
+	beq sydone
+syloop:
+	clc
+	adc #80
+	bcc sskip
+	inc screenmemory+1
+sskip:
+	dey
+	bne syloop
+sydone:
+	ldx screen_x
+	beq sxdone
+	clc
+	adc screen_x
+	bcc sxdone
+	inc screenmemory+1
+sxdone:
+	sta screenmemory
+	rts
+initmoveto_moveto3:
+	rts
+end_procedure_initmoveto:
+	; NodeProcedureDecl -1
 	; ***********  Defining procedure : system_SetScreenBackground
 	;    Procedure type : User-defined procedure
-	; LineNumber: 87
-	; LineNumber: 86
+	; LineNumber: 100
+	; LineNumber: 99
 localVariable_system_SetScreenBackground_system_back:	.byte	0
-	; LineNumber: 86
+	; LineNumber: 99
 localVariable_system_SetScreenBackground_system_border:	.byte	0
 system_SetScreenBackground_block4:
 system_SetScreenBackground:
-	; LineNumber: 88
+	; LineNumber: 101
 		lda localVariable_system_SetScreenBackground_system_back
 		sta $d020
 		lda localVariable_system_SetScreenBackground_system_border
 		sta $d021
 	
-	; LineNumber: 94
+	; LineNumber: 107
 	rts
 end_procedure_system_SetScreenBackground:
 	;**************************************************************	system::SetCharLocation																											b			- Bank of charset location							adr			- address of charset location																					**************************************************************
 	; NodeProcedureDecl -1
 	; ***********  Defining procedure : system_SetCharLocation
 	;    Procedure type : User-defined procedure
-	; LineNumber: 105
-	; LineNumber: 104
+	; LineNumber: 118
+	; LineNumber: 117
 localVariable_system_SetCharLocation_system_b:	.byte	0
-	; LineNumber: 104
+	; LineNumber: 117
 localVariable_system_SetCharLocation_system_adr:	.word	0
 system_SetCharLocation_block5:
 system_SetCharLocation:
-	; LineNumber: 106
+	; LineNumber: 119
 	lda localVariable_system_SetCharLocation_system_b
 	; Calling storevariable on generic assign expression
 	sta system_CHAR_BANK
-	; LineNumber: 107
+	; LineNumber: 120
 	ldy localVariable_system_SetCharLocation_system_adr+1 ;keep
 	lda localVariable_system_SetCharLocation_system_adr
 	; Calling storevariable on generic assign expression
 	sta system_CHAR_ADR
 	sty system_CHAR_ADR+1
-	; LineNumber: 108
+	; LineNumber: 121
 		sta 	$D068
 		lda localVariable_system_SetCharLocation_system_adr+1
 		sta $D069
 		lda localVariable_system_SetCharLocation_system_b
 		sta $D06A	
 	
-	; LineNumber: 116
+	; LineNumber: 129
 	rts
 end_procedure_system_SetCharLocation:
 	;**************************************************************	system::SetScreenLocation																										b			- Bank of screen Location							adr			- address of screen Location					**************************************************************
 	; NodeProcedureDecl -1
 	; ***********  Defining procedure : system_SetScreenLocation
 	;    Procedure type : User-defined procedure
-	; LineNumber: 126
-	; LineNumber: 125
+	; LineNumber: 139
+	; LineNumber: 138
 localVariable_system_SetScreenLocation_system_b:	.byte	0
-	; LineNumber: 125
+	; LineNumber: 138
 localVariable_system_SetScreenLocation_system_adr:	.word	0
 system_SetScreenLocation_block6:
 system_SetScreenLocation:
-	; LineNumber: 127
+	; LineNumber: 140
 	lda localVariable_system_SetScreenLocation_system_b
 	; Calling storevariable on generic assign expression
 	sta system_SCREEN_BANK
-	; LineNumber: 128
+	; LineNumber: 141
 	ldy localVariable_system_SetScreenLocation_system_adr+1 ;keep
 	lda localVariable_system_SetScreenLocation_system_adr
 	; Calling storevariable on generic assign expression
 	sta system_SCREEN_ADR
 	sty system_SCREEN_ADR+1
-	; LineNumber: 129
+	; LineNumber: 142
 		lda localVariable_system_SetScreenLocation_system_b
 		sta $d062
 		lda localVariable_system_SetScreenLocation_system_adr
@@ -263,7 +263,7 @@ system_SetScreenLocation:
 		lda localVariable_system_SetScreenLocation_system_adr+1
 		sta $d060		
 	
-	; LineNumber: 137
+	; LineNumber: 150
 	rts
 end_procedure_system_SetScreenLocation:
 	; NodeProcedureDecl -1
@@ -411,33 +411,30 @@ memory_Poke32:
 	; LineNumber: 153
 	rts
 end_procedure_memory_Poke32:
-	;**************************************************************	textio::Set40x25																																											**************************************************************
+	;**************************************************************	TRSE Mega65 StdLib												textio.TRU																														Procedures:															Set80x50 	- set 80x50 textmode								Set80x25		- set 80x25 textmode							Set40x25		- set 40x25 textmode							ClearScreen	- Clear screen with char and color					SetScreenLocation	- Set memory address of screen 				SetCharLocation	- Set memory address of chardata				SetScreenBackground 	- Set Background and Border color			PrintChar	- print char at location with color 				PrintString 	- print string at location with color 			SetFont		- set font 											ToggleLowerCase	- toggles between uppercase and lowercase 			CharDef		- replace a char with new data 																				**************************************************************
+; // pointer for strings**************************************************************	textio::COLOR																																												****************************************************************************************************************************	textio::Set80x50																																											**************************************************************
 	; NodeProcedureDecl -1
-	; ***********  Defining procedure : textio_Set40x25
+	; ***********  Defining procedure : textio_Set80x50
 	;    Procedure type : User-defined procedure
-	; LineNumber: 93
-textio_Set40x25:
-	; LineNumber: 94
-	lda #$19
+	; LineNumber: 53
+textio_Set80x50:
+	; LineNumber: 54
+	lda #$32
 	; Calling storevariable on generic assign expression
 	sta system_MAXY
-	; LineNumber: 95
-	lda #$28
-	; Calling storevariable on generic assign expression
-	sta system_MAXX
-	; LineNumber: 96
+	; LineNumber: 55
 		lda #%10000000
-		trb $d031
+		tsb $d031
 		
 		lda #%00001000
-		trb $d031
+		tsb $d031
 		
-		lda #25
+		lda #50
 		sta $d07b	
 	
-	; LineNumber: 106
+	; LineNumber: 65
 	rts
-end_procedure_textio_Set40x25:
+end_procedure_textio_Set80x50:
 	; NodeProcedureDecl -1
 	; ***********  Defining procedure : textio_ClearScreen
 	;    Procedure type : User-defined procedure
@@ -1173,15 +1170,15 @@ textio_CharDef_wordAdd91:
 end_procedure_textio_CharDef:
 block1:
 main_block_begin_:
-	; LineNumber: 23
+	; LineNumber: 26
 	;**************************************************************	TRSE Mega65 StdLib												Example : text.ras																												Shows usage of textio unit																									**************************************************************
-	jsr textio_Set40x25
-	; LineNumber: 27
-	
+; //	textio::Set40x25();	
 ; // no need to move the screen ram
 ; //	textio::Set80x25();  
 ; // no need to move the screen ram
-; //	textio::Set80x50();	
+	jsr textio_Set80x50
+	; LineNumber: 27
+	
 ; // ! move the screen ram
 	lda #$4
 	; Calling storevariable on generic assign expression

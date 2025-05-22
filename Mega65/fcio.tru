@@ -29,7 +29,39 @@ var
 /*																*/	
 /****************************************************************/
 Procedure InitFCM(width,height : integer);
+var
+	l,h : byte;
 begin
+		if (width <= 360) then
+		begin
+			// H640=0
+			system::HPIXEL_SCALE := 1;
+		end else
+		begin
+			// H640=1
+			system::HPIXEL_SCALE := 2;
+		end;
+		
+		if (height <= 240) then
+		begin
+			// V400 = 0
+			system::VPIXEL_SCALE := 1;
+		end else
+		begin
+			// V400 = 1
+			system::VPIXEL_SCALE := 2;
+		end;
+		// Calculate Screen Dimensions
+		system::SCR_WIDTH := width;
+		system::SCR_HEIGHT := height;
+		system::LEFT_BORDER := (system::HORIZONTAL_CENTER - ((width * system::HPIXEL_SCALE) / 2));
+		system::TOP_BORDER := (system::VERTICAL_CENTER - ((height * system::VPIXEL_SCALE) / 2));
+		system::BOTTOM_BORDER := (system::VERTICAL_CENTER + ((height * system::VPIXEL_SCALE) / 2));
+		
+		system::TEXTYPOS := system::TOP_BORDER;
+		system::MAXX := width / 8;
+		system::MAXY := height / 8;
+		
 		asm ("
 			sei
 			lda #$35
@@ -65,23 +97,11 @@ begin
 			trb $d030
 			cli
 		
-			; Disable Hot register to VIC2 register
-			lda #$80
-			trb $d05d
-			
-			; Disable Vic3 ATTR register to enable 8bit color
-			lda #$20
+			lda #%00100000
 			trb $d031
-
 			
-			
-			
-			; 25 lines
-			;lda #25
-			;sta $d07b 
-		
 			");
-			if (width=WIDTH_320) then
+			if (width<=360) then
 			begin
 				asm("
 					; Disable H640
@@ -94,23 +114,19 @@ begin
 					; Enable H640
 					lda #%10000000
 					tsb $d031
-				");
+				"); 
 			end;
 			
-			if (height=HEIGHT_200) then
+			if (height<=240) then
 			begin
-				system::MAXY := 25;
 				asm("
 					; Disable V400
 					lda #%00001000
 					trb $d031
-					; 25 lines ?!?!?!
-					lda #25
-					sta $d07b 
+					
 				");
 			end else
 			begin
-				system::MAXY := 50;
 				asm("
 					; Enable V400
 					lda #$00
@@ -118,9 +134,7 @@ begin
 
 					lda #%00001000
 					tsb $d031
-					; 50 lines ?!?!?!
-					lda #50
-					sta $d07b 
+					
 				");
 			end;
 			
@@ -142,21 +156,77 @@ begin
 			
 			
         
-        		lda #%01000000
-        		trb $d051
-        		
+    			;lda #%01000000
+     		;trb $d051
+      		
         		
 			;lda #$1D
 			;sta $01
 		
 			; enable fine raster compare
 			lda #%10000111
-            	trb $d07a
+      	    trb $d07a
 			lda #%10000000
 			trb $d053
 			lda #$68
-            	sta $d079
+      	    sta $d079
 		");
+/*		// Set Left Border
+		h := system::LEFT_BORDER&$ff;
+		l := (system::LEFT_BORDER shr 4)&$ff;
+		asm("
+			lda localVariable_fcio_InitFCM_fcio_l
+			sta $d05c
+			lda #%00111111
+			trb $d05d
+			lda localVariable_fcio_InitFCM_fcio_h&%00111111
+			tsb $d05d	
+		");
+		h := system::TOP_BORDER&$ff;
+		l := (system::TOP_BORDER shr 4)&$ff;
+		asm("
+			lda localVariable_fcio_InitFCM_fcio_l
+			sta $d048
+			lda #%00001111
+			trb $d049
+			lda localVariable_fcio_InitFCM_fcio_h&%00001111
+			tsb $d049		
+		");
+		
+		l := system::BOTTOM_BORDER&$ff;
+		h := (system::BOTTOM_BORDER shr 4)&$ff;
+		asm("
+			lda localVariable_fcio_InitFCM_fcio_l
+			sta $d04a
+			lda #%00001111
+			trb $d04b
+			lda localVariable_fcio_InitFCM_fcio_h&%00001111
+			tsb $d04b		
+		");
+		h := system::LEFT_BORDER&$ff;
+		l := (system::LEFT_BORDER shr 4)&$ff;
+		asm("
+			lda localVariable_fcio_InitFCM_fcio_l
+			sta $d04c
+			lda #%00001111
+			trb $d04d
+			lda localVariable_fcio_InitFCM_fcio_h&%00001111
+			tsb $d04d		
+		");
+		
+		h := system::TEXTYPOS&$ff;
+		l := (system::TEXTYPOS shr 4)&$ff;
+		asm("
+			lda localVariable_fcio_InitFCM_fcio_l
+			sta $d04e
+			lda #%00001111
+			trb $d04f
+			lda localVariable_fcio_InitFCM_fcio_h&%00001111
+			tsb $d04f		
+		");
+		*/
+		system::SetRowSize(system::MAXX);
+		system::SetNumRows(system::MAXY);
 end;
 
 
