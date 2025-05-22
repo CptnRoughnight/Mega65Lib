@@ -35,25 +35,26 @@ begin
 		if (width <= 360) then
 		begin
 			// H640=0
-			system::HPIXEL_SCALE := 1;
+			system::HPIXEL_SCALE := 2;
 		end else
 		begin
 			// H640=1
-			system::HPIXEL_SCALE := 2;
+			system::HPIXEL_SCALE := 1;
 		end;
 		
 		if (height <= 240) then
 		begin
 			// V400 = 0
-			system::VPIXEL_SCALE := 1;
+			system::VPIXEL_SCALE := 2;
 		end else
 		begin
 			// V400 = 1
-			system::VPIXEL_SCALE := 2;
+			system::VPIXEL_SCALE := 1;
 		end;
 		// Calculate Screen Dimensions
 		system::SCR_WIDTH := width;
 		system::SCR_HEIGHT := height;
+		
 		system::LEFT_BORDER := (system::HORIZONTAL_CENTER - ((width * system::HPIXEL_SCALE) / 2));
 		system::TOP_BORDER := (system::VERTICAL_CENTER - ((height * system::VPIXEL_SCALE) / 2));
 		system::BOTTOM_BORDER := (system::VERTICAL_CENTER + ((height * system::VPIXEL_SCALE) / 2));
@@ -149,13 +150,7 @@ begin
 			lda #$05
 			sta $d054
 			
-			; border and back color
-			lda #0
-			sta $d020
-			sta $d021
-			
-			
-        
+	    
     			;lda #%01000000
      		;trb $d051
       		
@@ -171,60 +166,40 @@ begin
 			lda #$68
       	    sta $d079
 		");
-/*		// Set Left Border
-		h := system::LEFT_BORDER&$ff;
-		l := (system::LEFT_BORDER shr 4)&$ff;
 		asm("
-			lda localVariable_fcio_InitFCM_fcio_l
+			lda system_LEFT_BORDER
 			sta $d05c
-			lda #%00111111
+			lda #%00001111
 			trb $d05d
-			lda localVariable_fcio_InitFCM_fcio_h&%00111111
+			lda system_LEFT_BORDER+1&%00111111
 			tsb $d05d	
-		");
-		h := system::TOP_BORDER&$ff;
-		l := (system::TOP_BORDER shr 4)&$ff;
-		asm("
-			lda localVariable_fcio_InitFCM_fcio_l
+
+			lda system_TOP_BORDER
 			sta $d048
 			lda #%00001111
 			trb $d049
-			lda localVariable_fcio_InitFCM_fcio_h&%00001111
+			lda system_TOP_BORDER+1&%00001111
 			tsb $d049		
-		");
-		
-		l := system::BOTTOM_BORDER&$ff;
-		h := (system::BOTTOM_BORDER shr 4)&$ff;
-		asm("
-			lda localVariable_fcio_InitFCM_fcio_l
+			lda system_BOTTOM_BORDER
 			sta $d04a
 			lda #%00001111
 			trb $d04b
-			lda localVariable_fcio_InitFCM_fcio_h&%00001111
+			lda system_BOTTOM_BORDER+1&%00001111
 			tsb $d04b		
-		");
-		h := system::LEFT_BORDER&$ff;
-		l := (system::LEFT_BORDER shr 4)&$ff;
-		asm("
-			lda localVariable_fcio_InitFCM_fcio_l
+			lda system_LEFT_BORDER
 			sta $d04c
 			lda #%00001111
 			trb $d04d
-			lda localVariable_fcio_InitFCM_fcio_h&%00001111
+			lda system_LEFT_BORDER+1&%00001111
 			tsb $d04d		
-		");
-		
-		h := system::TEXTYPOS&$ff;
-		l := (system::TEXTYPOS shr 4)&$ff;
-		asm("
-			lda localVariable_fcio_InitFCM_fcio_l
+			lda system_TEXTYPOS
 			sta $d04e
 			lda #%00001111
 			trb $d04f
-			lda localVariable_fcio_InitFCM_fcio_h&%00001111
+			lda system_TEXTYPOS+1&%00001111
 			tsb $d04f		
 		");
-		*/
+
 		system::SetRowSize(system::MAXX);
 		system::SetNumRows(system::MAXY);
 end;

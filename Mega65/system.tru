@@ -18,9 +18,9 @@ var
 	CHAR_BANK : byte = 0;
 	CHAR_ADR : integer = 0;
 	LogicalRowSize : integer;
-	RowSize : byte;
-	MAXX : byte = 80;
-	MAXY : byte = 25;
+	RowSize : integer;
+	MAXX : integer = 80;
+	MAXY : integer = 25;
 	
 	TOP_BORDER : integer;
 	LEFT_BORDER : integer;
@@ -28,13 +28,13 @@ var
 	SCR_WIDTH : integer;
 	SCR_HEIGHT : integer;
 	
-	HPIXEL_SCALE : byte;
-	VPIXEL_SCALE : byte;
+	HPIXEL_SCALE : integer;
+	VPIXEL_SCALE : integer;
 	
 	TEXTYPOS : integer;
 
-	HORIZONTAL_CENTER : integer = 400;
-	VERTICAL_CENTER : integer = 304;			// change for NTSC to 242
+	const	HORIZONTAL_CENTER : integer = 400;
+	const	VERTICAL_CENTER : integer = 304;			// change for NTSC to 242
 
 
 
@@ -114,7 +114,7 @@ end;
 /*	adr			- address of charset location					*/
 /*																*/
 /****************************************************************/
-procedure SetCharLocation(b:byte;adr : integer);
+procedure SetCharLocation(b:byte;adr : integer);		
 begin
 	CHAR_BANK := b;
 	CHAR_ADR := adr;
@@ -157,18 +157,15 @@ end;
 /*																*/	
 /****************************************************************/
 Procedure SetRowSize(newSize : byte);
-var 
-	h : byte;
 begin
 	RowSize := newSize;
 	LogicalRowSize := newSize*2;
-	h := (LogicalRowSize shr 4) & $ff;
 	asm("
 		lda system_RowSize
 		sta $d05e
 		lda $d063
 		and #$cf
-		ora localVariable_system_SetRowSize_system_h & $03 << 4
+		ora system_RowSize+1 & $03 << 4
 		sta $d063	
 		
 		lda system_LogicalRowSize
