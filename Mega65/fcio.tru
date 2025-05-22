@@ -157,13 +157,17 @@ begin
 			lda #$68
             	sta $d079
 		");
-	// Clear Color Ram
-	memory::Fill($ff08,$0000,system::MAXX*system::MAXY,$0000);
-	// Clear Screen Ram
-	memory::Fill(system::SCREEN_BANK,system::SCREEN_ADR,system::MAXX*system::MAXY,0);
 end;
 
 
+Procedure ClearScreen;
+begin
+		// Clear Color Ram
+	memory::Fill($ff08,$0000,system::MAXY*system::LogicalRowSize,0);
+	// Clear Screen Ram
+	memory::Fill(system::SCREEN_BANK,system::SCREEN_ADR,system::MAXY*system::LogicalRowSize,0);
+
+end;
 /****************************************************************/
 /*	fcio::ToggleNCM											*/
 /*																*/
