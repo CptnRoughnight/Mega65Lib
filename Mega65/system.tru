@@ -146,11 +146,23 @@ end;
 Procedure SetRowSize(newSize : byte);
 begin
 	MAXX := newSize;
+	
 	RowSize := newSize;
 	LogicalRowSize := newSize*2;
-	POKE(^$D05E,0,newSize);
-	POKE(^$D058,0,LogicalRowSize&$ff);
-	POKE(^$D059,0,(LogicalRowSize>>8)&$ff);
+	
+	asm("
+		lda localVariable_system_SetRowSize_system_newSize
+		sta $d05e
+		lda $d063
+		and #$cf
+		ora #((system_LogicalRowSize+1) & $03) << 4
+		sta $d063	
+		
+		lda system_LogicalRowSize
+		sta $d058
+		lda system_LogicalRowSize+1
+		sta $d059
+	");
 end;
 
 end.

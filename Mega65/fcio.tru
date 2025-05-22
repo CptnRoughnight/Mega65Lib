@@ -49,6 +49,17 @@ begin
 			lda #$00
 			sta $d01a
 			
+			; Change Vic2 Stuff here
+			lda #%00000111
+			trb $d016
+			
+			; exclude Kernel+Basic rom
+			lda    $00
+        		ora    #$07
+        		sta    $00
+			
+			cli
+			
 			; Unmap C64 Roms $d030 by clearing bits 3-7
 			lda #%11111000
 			trb $d030
@@ -58,13 +69,16 @@ begin
 			lda #$80
 			trb $d05d
 			
-			; Disable Vic3 ATTR register to en4000able 8bit color
+			; Disable Vic3 ATTR register to enable 8bit color
 			lda #$20
 			trb $d031
+
+			
+			
 			
 			; 25 lines
-			lda #25
-			sta $d07b 
+			;lda #25
+			;sta $d07b 
 		
 			");
 			if (width=WIDTH_320) then
@@ -90,22 +104,28 @@ begin
 					; Disable V400
 					lda #%00001000
 					trb $d031
+					; 25 lines ?!?!?!
+					lda #25
+					sta $d07b 
 				");
 			end else
 			begin
 				system::MAXY := 50;
 				asm("
 					; Enable V400
+					lda #$00
+					sta $d05b
+
 					lda #%00001000
 					tsb $d031
-					
+					; 50 lines ?!?!?!
+					lda #50
+					sta $d07b 
 				");
 			end;
 			
 			asm("
-			; 50 lines ?!?!?!
-			lda #50
-			sta $d07b 
+			
 					
 			; Enable RAM palettes
 			lda #$04
@@ -120,11 +140,12 @@ begin
 			sta $d020
 			sta $d021
 			
-			; exclude Kernel+Basic rom
-			lda    $00
-        		ora    #$07
-        		sta    $00
+			
         
+        		lda #%01000000
+        		trb $d051
+        		
+        		
 			;lda #$1D
 			;sta $01
 		
@@ -158,20 +179,10 @@ begin
 		isNCM := 1;
 		for i := 0 to system::MAXX*system::MAXY do
 			memory::Poke32($0ff8,i*2,%00001000);
-		// set MCM mode
-		asm("
-			lda #%00010000
-			tsb $D016
-		");
 	end else
 	begin
 		isNCM := 0;
 		memory::Fill($ff08,$0000,system::MAXX*system::MAXY,$0);
-		// reset MCM mode
-		asm("
-			lda #%00010000
-			trb $D016
-		");
 	end;
 end;
 
@@ -205,7 +216,7 @@ end;
 Procedure PutTile(x,y:byte;t : integer;pal:byte);
 begin
 	memory::WPoke32(system::SCREEN_BANK,system::SCREEN_ADR+x*2+y*system::LogicalRowSize,t);
-	if (isNCM=1) then memory::WPoke32($ff8,1+x*2+y*system::LogicalRowSize,t shl 4);
+	if (isNCM=1) then memory::Poke32($ff8,1+x*2+y*system::LogicalRowSize,pal shl 4);
 end;
 
 
