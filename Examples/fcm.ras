@@ -88,7 +88,7 @@ end;
 
 var 
 	x,y : byte;
-	
+	pal : byte;
 begin
 	CopyPalette;
 
@@ -101,10 +101,11 @@ begin
 	fcio::ClearScreen;
 	fcio::ToggleNCM;
 	
+	pal := 0;
 	for x := 0 to system::MAXX*2 do
 		for y := 0 to system::MAXY do
 		begin
-			fcio::PutTile(x,y,4096,mod(x+y*system::MAXX,16));
+			fcio::PutTile(x,y,4096,pal);
 			//fcio::PutChar(x,y,mod(x+y*system::MAXX,128),1+mod(x+y*system::MAXX,15));
 		end;
 		fcio::PutTile(25,10,4096,12);
