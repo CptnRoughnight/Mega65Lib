@@ -18,9 +18,9 @@ var
 	CHAR_BANK : byte = 0;
 	CHAR_ADR : integer = 0;
 	LogicalRowSize : integer;
-	RowSize : integer;
-	MAXX : integer = 80;
-	MAXY : integer = 25;
+	RowSize : byte;
+	MAXX : byte = 80;
+	MAXY : byte = 25;
 	
 	TOP_BORDER : integer;
 	LEFT_BORDER : integer;
@@ -156,23 +156,24 @@ end;
 /*	newSize			- new row size in byte						*/
 /*																*/	
 /****************************************************************/
-Procedure SetRowSize(newSize : byte);
+Procedure SetRowSize(newSize : integer);
 begin
-	RowSize := newSize;
-	LogicalRowSize := newSize*2;
+	RowSize := newSize & $ff;
+
 	asm("
 		lda system_RowSize
 		sta $d05e
-		lda $d063
-		and #$cf
-		ora system_RowSize+1 & $03 << 4
-		sta $d063	
+;		lda $d063
+;		and #$cf
+;		ora (system_RowSize+1 & $03) << 4
+;		sta $d063	
 		
 		lda system_LogicalRowSize
 		sta $d058
 		lda system_LogicalRowSize+1
 		sta $d059
 	");
+		LogicalRowSize := newSize*2;
 end;
 
 

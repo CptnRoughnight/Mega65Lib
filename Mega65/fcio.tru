@@ -29,13 +29,12 @@ var
 /*																*/	
 /****************************************************************/
 Procedure InitFCM(width,height : integer);
-var
-	l,h : byte;
 begin
 		if (width <= 360) then
 		begin
 			// H640=0
 			system::HPIXEL_SCALE := 2;
+
 		end else
 		begin
 			// H640=1
@@ -62,7 +61,7 @@ begin
 		system::TEXTYPOS := system::TOP_BORDER;
 		system::MAXX := width / 8;
 		system::MAXY := height / 8;
-		
+
 		asm ("
 			sei
 			lda #$35
@@ -155,7 +154,7 @@ begin
      		;trb $d051
       		
         		
-			;lda #$1D
+			;lda #$1Dbyte
 			;sta $01
 		
 			; enable fine raster compare
@@ -233,6 +232,8 @@ begin
 		isNCM := 0;
 		memory::Fill($ff08,$0000,system::MAXX*system::MAXY,$0);
 	end;
+	system::MAXX := system::MAXX / 2;
+	system::SetRowSize(system::MAXX);
 end;
 
 

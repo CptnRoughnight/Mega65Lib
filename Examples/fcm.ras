@@ -92,20 +92,20 @@ var
 begin
 	CopyPalette;
 
-//	CopyFCMTile;
-	CopyNCMTile;
+	CopyFCMTile;
+//	CopyNCMTile;
 	system::SetScreenBackground(4,0);
 
-	fcio::InitFCM(640,200);
+	fcio::InitFCM(320,200);
 	system::SetScreenLocation($0005,$0000);
 	fcio::ClearScreen;
-	fcio::ToggleNCM;
+//	fcio::ToggleNCM;
 	
 	pal := 0;
-	for x := 0 to system::MAXX*2 do
-		for y := 0 to system::MAXY do
+	for x := 0 to system::MAXX do
+		for y := 0 to system::MAXY*2 do
 		begin
-			fcio::PutTile(x,y,4096,mod(x+y*system::MAXX,16));
+			fcio::PutTile(x,y,4096,mod(x+y*system::LogicalRowSize,16));
 //			fcio::PutChar(x,y,mod(x+y*system::MAXX,128),1+mod(x+y*system::MAXX,15));
 		end;
 		fcio::PutTile(25,10,4096,12);

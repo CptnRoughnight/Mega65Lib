@@ -35,9 +35,9 @@ system_CHAR_BANK:	.byte	$00
 	; LineNumber: 19
 system_CHAR_ADR:	.word	$00
 	; LineNumber: 22
-system_MAXX:	.byte	$50
+system_MAXX:	.word	$50
 	; LineNumber: 23
-system_MAXY:	.byte	$19
+system_MAXY:	.word	$19
 	; LineNumber: 30
 textio_currentFont:	.byte	$00
 	; LineNumber: 32
@@ -123,32 +123,6 @@ initeightbitmul_multiply_eightbit2:
 	rts
 end_procedure_initeightbitmul:
 	; NodeProcedureDecl -1
-	; ***********  Defining procedure : initprintstring
-	;    Procedure type : Built-in function
-	;    Requires initialization : no
-print_text = $4c
-print_number_text: .asciiz "    "
-printstring:
-	ldy #0
-printstringloop:
-	lda (print_text),y
-	cmp #0 ;keep
-	beq printstring_done
-	cmp #64
-	bcc printstring_skip
-	sec
-	sbc #64
-printstring_skip:
-	sta (screenmemory),y
-	iny
-	dex
-	cpx #0
-	beq printstring_done
-	jmp printstringloop
-printstring_done:
-	rts
-end_procedure_initprintstring:
-	; NodeProcedureDecl -1
 	; ***********  Defining procedure : initmoveto
 	;    Procedure type : Built-in function
 	;    Requires initialization : no
@@ -184,6 +158,32 @@ sxdone:
 initmoveto_moveto3:
 	rts
 end_procedure_initmoveto:
+	; NodeProcedureDecl -1
+	; ***********  Defining procedure : initprintstring
+	;    Procedure type : Built-in function
+	;    Requires initialization : no
+print_text = $4c
+print_number_text: .asciiz "    "
+printstring:
+	ldy #0
+printstringloop:
+	lda (print_text),y
+	cmp #0 ;keep
+	beq printstring_done
+	cmp #64
+	bcc printstring_skip
+	sec
+	sbc #64
+printstring_skip:
+	sta (screenmemory),y
+	iny
+	dex
+	cpx #0
+	beq printstring_done
+	jmp printstringloop
+printstring_done:
+	rts
+end_procedure_initprintstring:
 	; NodeProcedureDecl -1
 	; ***********  Defining procedure : system_SetScreenBackground
 	;    Procedure type : User-defined procedure
@@ -419,9 +419,11 @@ end_procedure_memory_Poke32:
 	; LineNumber: 53
 textio_Set80x50:
 	; LineNumber: 54
+	ldy #0   ; Force integer assignment, set y = 0 for values lower than 255
 	lda #$32
 	; Calling storevariable on generic assign expression
 	sta system_MAXY
+	sty system_MAXY+1
 	; LineNumber: 55
 		lda #%10000000
 		tsb $d031
@@ -459,11 +461,12 @@ textio_ClearScreen:
 	sty localVariable_memory_Fill_memory_adrlo+1
 	; Mul 16x8 setup
 	; Load16bitvariable : system_MAXX
-	ldy #0
+	ldy system_MAXX+1
 	lda system_MAXX
 	sta mul16x8_num1
 	sty mul16x8_num1Hi
 	; Load16bitvariable : system_MAXY
+	ldy system_MAXY+1
 	lda system_MAXY
 	sta mul16x8_num2
 	jsr mul16x8_procedure
@@ -492,10 +495,12 @@ textio_ClearScreen:
 	sty localVariable_memory_Fill_memory_adrlo+1
 	; Mul 16x8 setup
 	; Load16bitvariable : system_MAXX
+	ldy system_MAXX+1
 	lda system_MAXX
 	sta mul16x8_num1
 	sty mul16x8_num1Hi
 	; Load16bitvariable : system_MAXY
+	ldy system_MAXY+1
 	lda system_MAXY
 	sta mul16x8_num2
 	jsr mul16x8_procedure
@@ -540,6 +545,7 @@ textio_PrintChar:
 	sta mul16x8_num1
 	sty mul16x8_num1Hi
 	; Load16bitvariable : system_MAXX
+	ldy system_MAXX+1
 	lda system_MAXX
 	sta mul16x8_num2
 	jsr mul16x8_procedure
@@ -595,6 +601,7 @@ textio_PrintChar_rightvarInteger_var20 = $54
 	sta mul16x8_num1
 	sty mul16x8_num1Hi
 	; Load16bitvariable : system_MAXX
+	ldy system_MAXX+1
 	lda system_MAXX
 	sta mul16x8_num2
 	jsr mul16x8_procedure
@@ -665,6 +672,7 @@ textio_PrintString_ctb23: ;Main true block ;keep:
 	sta mul16x8_num1
 	sty mul16x8_num1Hi
 	; Load16bitvariable : system_MAXX
+	ldy system_MAXX+1
 	lda system_MAXX
 	sta mul16x8_num2
 	jsr mul16x8_procedure
@@ -733,6 +741,7 @@ textio_PrintString_wordAdd44:
 	sta mul16x8_num1
 	sty mul16x8_num1Hi
 	; Load16bitvariable : system_MAXX
+	ldy system_MAXX+1
 	lda system_MAXX
 	sta mul16x8_num2
 	jsr mul16x8_procedure
