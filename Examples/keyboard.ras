@@ -22,7 +22,7 @@ begin
 	wasd := 1;
 	system::Enable40Mhz;
 	textio::Set80x50();	// ! move the screen ram
-	textio::SetScreenLocation($0005,$0000);
+	system::SetScreenLocation($0005,$0000);
 	textio::ClearScreen(1,6);
 	counter1 := 10000;
 	while(1) do
@@ -49,15 +49,15 @@ begin
 			if wasd then
 			begin
 				if (inputs::CheckKeyPressed(inputs::MKEY_W) and (y>0)) then DEC(y);
-				if (inputs::CheckKeyPressed(inputs::MKEY_S) and (y<textio::MAXY-1)) then INC(y);
-				if (inputs::CheckKeyPressed(inputs::MKEY_D) and (x<textio::MAXX-1)) then INC(x);
+				if (inputs::CheckKeyPressed(inputs::MKEY_S) and (y<system::MAXY-1)) then INC(y);
+				if (inputs::CheckKeyPressed(inputs::MKEY_D) and (x<system::MAXX-1)) then INC(x);
 				if (inputs::CheckKeyPressed(inputs::MKEY_A) and (x>0)) then DEC(x);
 			end else
 			begin
 				// the cursor keys... buggy, to say the least... working on it
 				if (inputs::CheckCursorPressed(inputs::MKEY_CURSOR_UP) and (y>0)) then DEC(y);
-				if (inputs::CheckCursorPressed(inputs::MKEY_CURSOR_DOWN) and (y<textio::MAXY-1)) then INC(y);
-				if (inputs::CheckCursorPressed(inputs::MKEY_CURSOR_RIGHT) and (x<textio::MAXX-1)) then INC(x);
+				if (inputs::CheckCursorPressed(inputs::MKEY_CURSOR_DOWN) and (y<system::MAXY-1)) then INC(y);
+				if (inputs::CheckCursorPressed(inputs::MKEY_CURSOR_RIGHT) and (x<system::MAXX-1)) then INC(x);
 				if (inputs::CheckCursorPressed(inputs::MKEY_CURSOR_LEFT) and (x>0)) then DEC(x);
 			end;
 			

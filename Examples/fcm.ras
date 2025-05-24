@@ -35,14 +35,14 @@ var
 
 	// FCM: every byte is mapped to the 256colors
 	fcmTile : array[] of byte = (
-	 0,0,2,2,2,2,0,0,
-	 0,2,67,67,67,67,2,0,
-	 2,150,67,150,150,150,150,2,
-	 0,2,72,72,254,254,2,0,
-	 0,2,72,72,59,254,254,2,
-	 2,181,123,181,5,181,10,2,
-	 2,59,123,5,5,123,72,2,
-	 0,2,67,2,2,164,2,0
+	 0,0,1,1,1,1,0,0,
+	 0,1,0,0,0,0,1,0,
+	 1,0,55,0,0,55,0,1,
+	 1,0,0,0,0,0,0,1,
+	 1,0,45,0,0,45,0,1,
+	 1,0,0,45,45,0,0,1,
+	 0,1,0,0,0,0,1,0,
+	 0,0,1,1,1,1,0,0
 	);
 	
 	
@@ -96,7 +96,7 @@ begin
 //	CopyNCMTile;
 	system::SetScreenBackground(4,0);
 
-	fcio::InitFCM(320,200);
+	fcio::InitFCM(640,400);
 	system::SetScreenLocation($0005,$0000);
 	fcio::ClearScreen;
 //	fcio::ToggleNCM;
@@ -106,7 +106,7 @@ begin
 		for y := 0 to system::MAXY*2 do
 		begin
 			fcio::PutTile(x,y,4096,mod(x+y*system::LogicalRowSize,16));
-//			fcio::PutChar(x,y,mod(x+y*system::MAXX,128),1+mod(x+y*system::MAXX,15));
+//			fcio::PutChar(x,y,mod(x+y*system::LogicalRowSize,128),1+mod(x+y*system::LogicalRowSize,15));
 		end;
 		fcio::PutTile(25,10,4096,12);
 		fcio::PutChar(28,10,1,1);

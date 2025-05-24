@@ -7,6 +7,7 @@
 /****************************************************************/
 unit fcio;
 
+@define NCM_TAG %00001000
 
 @use "Mega65/system"
 @use "Mega65/memory"
@@ -206,10 +207,10 @@ end;
 
 Procedure ClearScreen;
 begin
-		// Clear Color Ram
-	memory::Fill($ff08,$0000,system::MAXY*system::LogicalRowSize,0);
+	// Clear Color Ram
+	memory::Fill($ff08,$0000,system::MAXY*system::MAXX,0);
 	// Clear Screen Ram
-	memory::Fill(system::SCREEN_BANK,system::SCREEN_ADR,system::MAXY*system::LogicalRowSize,0);
+	memory::Fill(system::SCREEN_BANK,system::SCREEN_ADR,system::MAXY*system::MAXX,0);
 
 end;
 /****************************************************************/
@@ -225,15 +226,18 @@ begin
 	if isNCM=0 then
 	begin
 		isNCM := 1;
-		for i := 0 to system::MAXX*system::MAXY do
-			memory::Poke32($0ff8,i*2,%00001000);
+		system::MAXX := system::MAXX / 2;
+		system::SetRowSize(system::MAXX);
+		for i := 0 to system::MAXY*system::LogicalRowSize do
+			memory::Poke32($0ff8,i*2,@NCM_TAG);				
 	end else
 	begin
+		system::MAXX := system::MAXX * 2;
+		system::SetRowSize(system::MAXX);
 		isNCM := 0;
-		memory::Fill($ff08,$0000,system::MAXX*system::MAXY,$0);
+		memory::Fill($ff08,$0000,system::MAXY*system::LogicalRowSize,$0);
 	end;
-	system::MAXX := system::MAXX / 2;
-	system::SetRowSize(system::MAXX);
+	
 end;
 
 
