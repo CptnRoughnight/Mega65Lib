@@ -32,7 +32,9 @@ var
 
 	isLowerCase : boolean = false;
 	s : ^byte;		// pointer for strings
-
+	s1,s2 : ^byte;
+	splitCount : byte;		// index for splitstring
+	splitChar : byte;			// delimiter char for splitstring
 
 /****************************************************************/
 /*	textio::COLOR												*/
@@ -123,6 +125,41 @@ begin
 end;
 
 
+/****************************************************************/
+/*	inputs::ToScreen										*/
+/*														*/
+/*	c			- ascii code								*/				
+/*																*/	
+/*	returns		- screencode 								*/
+/*																*/
+/****************************************************************/
+function ToScreen(c : byte) : byte;
+var
+	ret : byte;
+begin
+    ret := c;
+    if (c >= 65 and (c <= 90)) then
+    		ret := c - 65 + 1;
+    	if (c >= 97 and (c <= 122)) then
+    		ret := c - 97 + 1;
+    		
+    	ToScreen := ret;
+end;
+
+/****************************************************************/
+/*	inputs::ToPetscii										*/
+/*														*/
+/*	c			- screen code								*/				
+/*																*/	
+/*	returns		- petsciicode 								*/
+/*																*/
+/****************************************************************/
+function ToPetscii(c : byte) : byte;
+begin
+	
+end;
+
+
 
 /****************************************************************/
 /*	textio::PrintChar											*/
@@ -152,11 +189,149 @@ begin
 	i := 0;
 	while (s[i]<>0) do
 	begin
-		memory::Poke32(system::SCREEN_BANK,system::SCREEN_ADR+(x+i)+y*system::MAXX,s[i]);
+		memory::Poke32(system::SCREEN_BANK,system::SCREEN_ADR+(x+i)+y*system::MAXX,ToScreen(s[i]));
 		memory::Poke32($ff8,(x+i)+y*system::MAXX,c);
 		inc(i);
 	end;
 end;
+
+
+/****************************************************************/
+/*	textio::PrintIntHex										*/
+/*															*/	
+/*	a			- integer value to print						*/
+/*	x,y			- Screen position of string					*/
+/*  c			- color to print 							*/
+/****************************************************************/
+procedure PrintIntHex(a : integer;x,y,c : byte);
+var
+	i : byte;
+	nibble : byte;
+	dx : byte;
+begin
+	dx := 1;
+	i := 0;
+	
+	PrintChar(x,y,'$',c);
+	for i := 0 to 4 do 
+	begin
+		nibble := (a shr ((3-i)*4)) & $0F;
+		if nibble < 10 then
+			PrintChar(x+dx,y,nibble+48,c)
+		else
+			PrintChar(x+dx,y,(nibble-10)+1,c);
+		inc(dx);
+	end;
+end;
+
+
+/****************************************************************/
+/*	textio::PrintIntBin											*/
+/*																*/	
+/*	a			- integer value to print								*/
+/*	x,y			- Screen position of string						*/
+/*  c			- color to print 								*/
+/****************************************************************/
+procedure PrintIntBin(a : integer;x,y,c : byte);
+var
+	i : byte;
+	dx : byte;
+begin
+	dx := 1;
+	PrintChar(x,y,'%',c);
+	fori i := 15 to 0 step -1 do
+	begin
+		if (a & (1 shl i))<>0 then
+			PrintChar(x+dx,y,'1',c)
+		else
+			PrintChar(x+dx,y,'0',c);
+		inc(dx);
+	end;
+end;
+
+
+/****************************************************************/
+/*	textio::PrintByteHex										*/
+/*															*/	
+/*	a			- byte value to print						*/
+/*	x,y			- Screen position of string					*/
+/*  c			- color to print 							*/
+/****************************************************************/
+procedure PrintByteHex(a : byte;x,y,c : byte);
+var
+	nibble : byte;
+	dx : byte;
+begin
+	dx := 1;
+	
+	PrintChar(x,y,'$',c);
+
+	nibble := (a shr 4) & $0f;
+	if (nibble < 10) then
+		PrintChar(x+1,y,nibble+48,c)
+	else
+		PrintChar(x+1,y,(nibble-10)+1,c);
+		
+
+	nibble := a & $0f;
+	if (nibble < 10) then
+		PrintChar(x+2,y,nibble+48,c)
+	else
+		PrintChar(x+2,y,(nibble-10)+1,c);
+
+end;
+
+
+/****************************************************************/
+/*	textio::PrintByteBin											*/
+/*																*/	
+/*	a			- integer value to print								*/
+/*	x,y			- Screen position of string						*/
+/*  c			- color to print 								*/
+/****************************************************************/
+procedure PrintByteBin(a : byte;x,y,c : byte);
+var
+	i : byte;
+	dx : byte;
+begin
+	dx := 1;
+	PrintChar(x,y,'%',c);
+	fori i := 7 to 0 step -1 do
+	begin
+		if (a & (1 shl i))<>0 then
+			PrintChar(x+dx,y,'1',c)
+		else
+			PrintChar(x+dx,y,'0',c);
+		inc(dx);
+	end;
+end;
+
+
+
+/****************************************************************/
+/*	textio::PrintStringHex									*/
+/*																*/	
+/*	s			- pointer to string								*/
+/*	x,y			- Screen position of string						*/
+/*  c			- color to print 								*/
+/****************************************************************/
+procedure PrintStringHex(s : global ^byte;x,y,c : byte);
+var
+	i : byte;
+	dx : byte;
+begin
+	i := 0;
+	dx := 0;
+	while (s[i]<>0) do
+	begin
+		PrintByteHex(s[i],x+dx,y,c);	
+		inc(i);
+		dx := dx + 3;		
+	end;
+end;
+
+
+
 
 /****************************************************************/
 /*	textio::SetFont												*/
@@ -206,6 +381,8 @@ begin
 	memory::Copy($0000,data,system::CHAR_BANK,system::CHAR_ADR+charNum*8,8);
 end;
 
+
+
 /****************************************************************/
 /*	textio::DrawWindow											*/
 /*																*/
@@ -240,5 +417,85 @@ begin
 		memory::Fill($ff08,$0000+x+1+iy*system::MAXX,(x2-x-1),fc);
 	end;
 end;
+
+
+
+
+/****************************************************************/
+/*	textio::StrEqual																*/
+/*																						*/
+/*	s1			- 	Input String 1													*/
+/*	s2			- 	Input String 2													*/
+/*																						*/	
+/* return	-	returns 1 of s1 = s2, otherwise 0						*/
+/****************************************************************/
+function StrEqual(s1,s2 : global ^byte) : byte;
+var 
+	ret : byte;
+	index : byte;
+begin
+	ret := 1;
+	index := 0;
+	for index := 0 to 255 do
+	begin
+		if (s1[index]=0 and (s2[index]=0)) then break;
+		if ((s1[index]<>s2[index])) then 
+		begin
+			ret := 0;
+			break;
+		end;
+	end;
+	StrEqual:=ret;
+end;
+
+
+
+/****************************************************************/
+/*	textio::StrSplit																*/
+/*																						*/
+/*	s1			- 	Input String 1													*/
+/* s2			-	destination String											*/
+/*	c			- 	delimiter														*/
+/*																						*/	
+/* return	-	split string #0 in s2										*/
+/****************************************************************/
+procedure StrSplit(s1,s2 : global ^byte,c : byte) ;
+var 
+	index : byte;
+begin
+	index := 0;
+	splitCount := 0;
+	splitChar := c;
+	
+	while(s1[splitCount]<>0 and (s1[splitCount]<>c)) do
+	begin
+		s2[index] := splitCount;
+		inc(index);
+		inc(splitCount);
+	end;	
+end;
+
+
+
+/****************************************************************/
+/*	textio::StrGetNext															*/
+/*																						*/
+/*																						*/	
+/* return	-	split string #n in s2										*/
+/****************************************************************/
+procedure StrGetNext() ;
+var 
+	index : byte;
+begin
+	index := 0;
+	while(s1[splitCount]<>0 and (s1[splitCount]<>splitChar)) do
+	begin
+		s2[index] := splitCount;
+		inc(index);
+		inc(splitCount);
+	end;	
+end;
+
+
 
 end.
