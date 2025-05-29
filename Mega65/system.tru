@@ -21,6 +21,7 @@ var
 	RowSize : byte;
 	MAXX : byte = 80;
 	MAXY : byte = 25;
+	SIZE : integer = 80*25;
 	
 	TOP_BORDER : integer;
 	LEFT_BORDER : integer;
@@ -193,4 +194,22 @@ begin
 	");
 end;
 
+
+/****************************************************************/
+/*	system::VBlank											*/
+/*															*/
+/*															*/	
+/****************************************************************/
+Procedure VBlank();
+begin
+	asm("
+	@wait_for_next_frame:
+		bit $d011
+ 	    bpl @wait_for_next_frame
+    		lda $d012
+	@f: cmp $d012
+  	   	bmi @f
+	");
+end;
+	
 end.
