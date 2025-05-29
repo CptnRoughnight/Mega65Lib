@@ -15,6 +15,7 @@
 /*		SetFont		- set font 									*/
 /*		ToggleLowerCase	- toggles between uppercase and lowercase 	*/
 /*		CharDef		- replace a char with new data 				*/
+/*		DrawWindow	- draws a window on the screen  				*/
 /*																*/		
 /****************************************************************/
 unit textio;
@@ -52,6 +53,7 @@ var
 procedure Set80x50;
 begin
 	system::MAXY := 50;
+	system::SIZE := 50*80;
 	asm("
 		lda #%10000000
 		tsb $d031
@@ -72,6 +74,7 @@ end;
 procedure Set80x25;
 begin
 	system::MAXY := 25;
+	system::SIZE := 25*80;
 	asm("
 		lda #%10000000
 		tsb $d031
@@ -93,6 +96,7 @@ procedure Set40x25;
 begin
 	system::MAXY := 25;
 	system::MAXX := 40;
+	system::SIZE := 25*40;
 	asm("
 		lda #%10000000
 		trb $d031
@@ -114,8 +118,8 @@ end;
 /****************************************************************/
 procedure ClearScreen(ch,c : byte);
 begin
-	memory::Fill(system::SCREEN_BANK,system::SCREEN_ADR,system::MAXX*system::MAXY,ch);
-	memory::Fill($ff08,$0000,system::MAXX*system::MAXY,c);
+	memory::Fill(system::SCREEN_BANK,system::SCREEN_ADR,system::SIZE,ch);
+	memory::Fill($ff08,$0000,system::SIZE,c);
 end;
 
 
@@ -200,6 +204,41 @@ end;
 procedure CharDef(charNum : byte;data : ^integer);
 begin
 	memory::Copy($0000,data,system::CHAR_BANK,system::CHAR_ADR+charNum*8,8);
+end;
+
+/****************************************************************/
+/*	textio::DrawWindow											*/
+/*																*/
+/*	x,y				- position of the window					*/
+/*	x2,y2			- end position of the window						*/
+/*	bc				- color of the border					*/
+/*	fch				- fill char								*/
+/*  fc				- fill color								*/
+/*																*/	
+/****************************************************************/
+procedure DrawWindow(x,y,x2,y2 : byte;bc,fch,fc : byte);
+var
+	ix,iy : byte;
+begin
+	// draw the 4 corners
+	PrintChar(x,y,85,bc);
+	PrintChar(x2,y,73,bc);
+	PrintChar(x2,y2,75,bc);
+	PrintChar(x,y2,74,bc);
+	// draw the lines
+	memory::Fill(system::SCREEN_BANK,system::SCREEN_ADR+x+1+y*system::MAXX,(x2-x-1),67);
+	memory::Fill($ff08,$0000+x+1+y*system::MAXX,(x2-x-1),bc);
+
+	memory::Fill(system::SCREEN_BANK,system::SCREEN_ADR+x+1+y2*system::MAXX,(x2-x-1),67);
+	memory::Fill($ff08,$0000+x+1+y2*system::MAXX,(x2-x-1),bc);
+
+	for iy := y+1 to y2 do 
+	begin
+		PrintChar(x,iy,66,bc);
+		PrintChar(x2,iy,66,bc);		
+		memory::Fill(system::SCREEN_BANK,system::SCREEN_ADR+x+1+iy*system::MAXX,(x2-x-1),fch);
+		memory::Fill($ff08,$0000+x+1+iy*system::MAXX,(x2-x-1),fc);
+	end;
 end;
 
 end.
