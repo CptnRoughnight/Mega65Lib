@@ -164,18 +164,19 @@ end;
 function Peek32(adrhi:integer;adrlo:integer) : byte;
 begin
 		asm("
-			lda localVariable_memory_Poke32_memory_adrhi+1
+			lda localVariable_memory_Peek32_memory_adrhi+1
 			sta $43
-			lda localVariable_memory_Poke32_memory_adrhi
+			lda localVariable_memory_Peek32_memory_adrhi
 			sta $42
-			lda localVariable_memory_Poke32_memory_adrlo+1
+			lda localVariable_memory_Peek32_memory_adrlo+1
 			sta $41
-			lda	localVariable_memory_Poke32_memory_adrlo
+			lda	localVariable_memory_Peek32_memory_adrlo
 			sta $40
 			
 			ldz #0
 			nop
 			lda($40),z ; return value in A
+			;sta localVariable_memory_Peek32_memory_ret
 		");
 end;
 
