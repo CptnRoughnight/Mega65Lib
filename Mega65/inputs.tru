@@ -8,11 +8,27 @@
 /*		CheckCursorPressed	- Checks if a cursor key is pressed */
 /*		CheckCursorHit		- Checks if a cursor key is just pressed 	*/
 /*		CheckModPressed		- Checks if a mod key is pressed	*/
+/*		GetAscii				- Get 0 or Ascii char unblocking */
+/*		WaitAscii			- Get Ascii char blocking  */
 /*																*/		
 /****************************************************************/
 unit inputs;
 
 var
+	
+/****************************************************************/
+/*																*/
+/*	KEY CONSTANTS - (D610									*/
+/*																*/
+/****************************************************************/
+const	MKEY_ASC_CURSOR_DOWN : byte = $11;
+const	MKEY_ASC_CURSOR_RIGHT : byte = $1D;
+const	MKEY_ASC_CURSOR_UP : byte = $91;
+const	MKEY_ASC_CURSOR_LEFT : byte = $9D;
+
+const 	MKEY_ASC_RETURN : byte = $0D;
+const	MKEY_ASC_INSDEL : byte = $14;
+
 /****************************************************************/
 /*																*/
 /*	KEY CONSTANTS - 											*/
@@ -270,6 +286,72 @@ begin
 
 
 end;
+
+/****************************************************************/
+/*	inputs::GetAscii										*/
+/*																*/	
+/*	returns		- 0 or ascii key								*/
+/*																*/
+/****************************************************************/
+function GetAscii : byte;
+begin
+	asm("
+		lda $D610
+		sta $D610	
+	");
+end;
+
+/****************************************************************/
+/*	inputs::WaitAscii										*/
+/*																*/	
+/*	returns		- ascii key								*/
+/*																*/
+/****************************************************************/
+function WaitAscii : byte;
+begin
+	asm("
+	@wait:
+		lda $D610
+		cmp #$00
+		beq @wait
+		sta $D610	
+	");
+end;
+
+/****************************************************************/
+/*	inputs::ToScreen										*/
+/*														*/
+/*	c			- ascii code								*/				
+/*																*/	
+/*	returns		- screencode 								*/
+/*																*/
+/****************************************************************/
+function ToScreen(c : byte) : byte;
+var
+	ret : byte;
+begin
+    ret := c;
+    if (c >= 65 and (c <= 90)) then
+    		ret := c - 65 + 1;
+    	if (c >= 97 and (c <= 122)) then
+    		ret := c - 97 + 1;
+    		
+    	ToScreen := ret;
+end;
+
+/****************************************************************/
+/*	inputs::ToPetscii										*/
+/*														*/
+/*	c			- screen code								*/				
+/*																*/	
+/*	returns		- petsciicode 								*/
+/*																*/
+/****************************************************************/
+function ToPetscii(c : byte) : byte;
+begin
+	
+end;
+
 
 
 end.
