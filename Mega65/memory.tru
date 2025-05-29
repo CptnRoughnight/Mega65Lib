@@ -18,13 +18,13 @@ var
 	p : pointer;	// mandatory variable for trse
 	
 /****************************************************************/
-/*	memory::Fill												*/
-/*																*/	
-/*	adrhi  - high-integer of address							*/
-/*	adrlo  - low-integer of address								*/
-/*	countx - how many bytes to fill								*/
-/*	value  - fill with value									*/
-/*																*/
+/*	memory::Fill												 					*/
+/*																						*/	
+/*	adrhi  - high-integer of address											*/
+/*	adrlo  - low-integer of address											*/
+/*	countx - how many bytes to fill											*/
+/*	value  - fill with value													*/
+/*																						*/
 /****************************************************************/
 procedure Fill(adrhi,adrlo,countx,value : integer);
 begin
