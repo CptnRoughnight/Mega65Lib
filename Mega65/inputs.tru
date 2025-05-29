@@ -28,6 +28,9 @@ const	MKEY_ASC_CURSOR_LEFT : byte = $9D;
 
 const 	MKEY_ASC_RETURN : byte = $0D;
 const	MKEY_ASC_INSDEL : byte = $14;
+const 	MKEY_ASC_F5 : byte = $F5;
+const 	MKEY_ASC_F7 : byte = $F7;
+const 	MKEY_ASC_F9 : byte = $F9;
 
 /****************************************************************/
 /*																*/
@@ -317,41 +320,6 @@ begin
 		sta $D610	
 	");
 end;
-
-/****************************************************************/
-/*	inputs::ToScreen										*/
-/*														*/
-/*	c			- ascii code								*/				
-/*																*/	
-/*	returns		- screencode 								*/
-/*																*/
-/****************************************************************/
-function ToScreen(c : byte) : byte;
-var
-	ret : byte;
-begin
-    ret := c;
-    if (c >= 65 and (c <= 90)) then
-    		ret := c - 65 + 1;
-    	if (c >= 97 and (c <= 122)) then
-    		ret := c - 97 + 1;
-    		
-    	ToScreen := ret;
-end;
-
-/****************************************************************/
-/*	inputs::ToPetscii										*/
-/*														*/
-/*	c			- screen code								*/				
-/*																*/	
-/*	returns		- petsciicode 								*/
-/*																*/
-/****************************************************************/
-function ToPetscii(c : byte) : byte;
-begin
-	
-end;
-
 
 
 end.
