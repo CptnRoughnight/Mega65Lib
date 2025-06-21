@@ -1,0 +1,33 @@
+/****************************************************************/
+/*	TRSE Mega65 StdLib											*/
+/*	Example : mvtest.ras											*/
+/*																*/
+/*	Shows usage of MegaVision TUI System							*/
+/*																*/		
+/****************************************************************/
+program mvTest;
+
+@use "Mega65/MegaVision/App"
+@use "Mega65/memory"
+@use "Mega65/system"
+@use "Mega65/fcio"
+
+procedure Update;
+begin
+	inc(^$D021);
+	inc(^$D021);
+	inc(^$D021);
+	inc(^$D021); 
+end;
+
+var
+	myApp : App::TApplication;
+
+begin
+	App::onUserUpdate := #Update;
+	myApp.Init(1);
+	myApp.Run;
+	myApp.Done;	
+	return;
+end.
+

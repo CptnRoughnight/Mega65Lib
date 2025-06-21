@@ -32,6 +32,9 @@ const 	MKEY_ASC_F5 : byte = $F5;
 const 	MKEY_ASC_F7 : byte = $F7;
 const 	MKEY_ASC_F9 : byte = $F9;
 
+const 	MKEY_ASC_ALT_X  : byte = $D7;
+const	MKEY_ASC_MEGA_X : byte = $D8;
+
 /****************************************************************/
 /*																*/
 /*	KEY CONSTANTS - 											*/

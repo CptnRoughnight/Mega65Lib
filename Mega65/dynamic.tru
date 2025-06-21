@@ -1,0 +1,60 @@
+/***************************************************************/
+/*	TRSE Mega65 StdLib										*/
+/*	dynamic.TRU												*/	
+/*															*/
+/*	dynamic memory handling									*/
+/*															*/
+/*	Procedures:												*/
+/*															*/
+/***************************************************************/
+unit dynamic;
+
+@use "Mega65/memory"
+
+
+var
+	TDynamicArea = class
+		startaddr : integer;
+		size : integer;
+		lastIndex : integer;
+		p : pointer;
+		
+		Procedure Init(_startAddress : integer; _size : integer);
+		begin
+			this.startaddr := _startAddress;
+			this.size := _size;
+			this.lastIndex := 0;
+			p := this.startaddr;
+		end;
+		
+		Procedure AddByte(_b : byte);
+		begin
+			p^ := _b;
+			Inc(lastIndex);			
+			Inc(p);
+		end;
+		
+		Procedure AddInt(_i : integer);
+		begin
+			p^ := High(_i);
+			inc(p);
+			p^ := Low(_i);
+
+			inc(lastIndex);			
+			inc(lastIndex);			
+			inc(p);
+			inc(p);
+		end;
+		
+		Function GetByte (_index : integer);
+		var	
+			addr : integer;
+		begin
+			GetByte := PEEK(startaddr,_index);
+		end;
+		
+		
+	end;
+
+
+end.
