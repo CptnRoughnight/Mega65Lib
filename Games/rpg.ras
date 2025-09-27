@@ -1,0 +1,432 @@
+/********************************************************************/
+/*	TRSE Mega65 StdLib											*/
+/*	Game : RPG.ras												*/
+/*																*/
+/*	little rpg game to demonstrate TRSE StdLib					*/
+/*  you can't run this demo directly with emulator, you need to 	*/
+/*  compile a d81 disk image... emu.sh/send.sh show how it's done 	*/
+/*																*/		
+/********************************************************************/
+program rpg;
+
+@use "Mega65/system"
+@use "Mega65/textio"
+@use "Mega65/fileio"
+@use "Mega65/memory"
+@use "Mega65/inputs"
+@use "Mega65/sfx"
+
+
+@define GroundTile 130
+@define PlayerChar 138
+@define PlayerColor 10
+
+@define MapWidth  114
+@define MapHeight 96
+
+@define MapViewWidth 57
+@define MapViewHeight 48
+
+@define ScreenWidth 80
+
+@define MapScrollDown 1
+@define MapScrollUp 2
+@define MapScrollRight 3
+@define MapScrollLeft 4
+
+@define MapScrollTime 150
+
+
+var 
+	// Files to load
+	hudFile : string = "HUD.BIN";
+	hudcFile : string = "HUDC.BIN";
+	mapFile : string = "MAP3.BIN";
+	mapcFile : string = "MAP3C.BIN";
+	
+	// Map Vars
+	mapOffsetX,mapOffsetY : byte;
+	
+	// Player Vars
+	
+	playerX,playerY : byte;
+	charUnderPlayer : byte;
+	colorUnderPlayer : byte;
+	plAddr : integer;
+	
+	health : byte;
+	shield : byte;
+	str,int : byte;
+	
+	// CHAR DEFINITIONS - next step, could be a loadable file
+	groundChar : Array[8] of byte = 		(%10101010,%01010101,%10101010,%01010101,%10101010,%01010101,%10101010,%01010101);
+	treeChar : Array[8] of byte = 		(%01001000,%00110010,%00010100,%11011000,%00110000,%00010000,%00010000,%00010000);
+	stoneChar : Array[8] of byte = 		(%00000000,%00000010,%00011111,%00111111,%01111011,%01010110,%01111110,%00111100);	
+	heartChar : Array[8] of byte = 		(%00100100,%01111110,%11111111,%11111111,%11111111,%01111110,%00111100,%00011000);
+	strengthChar : Array[8] of byte = 	(%00000110,%00001111,%00001111,%01100110,%11110110,%11111110,%11111110,%11111100);
+	water1Char : Array[8] of byte = 		(%01000000,%10100001,%00010110,%00001000,%10000001,%01100110,%00011000,%00000000);
+	water2Char : Array[8] of byte = 		(%00000000,%10000001,%01100110,%00011000,%00000000,%00000110,%10111001,%01000000);
+	water3Char : Array[8] of byte = 		(%00000000,%01110000,%10001101,%00000010,%00000000,%10011000,%01100111,%00000000);
+	playerChar : Array[8] of byte = 		(%00111000,%00111000,%00010000,%01111100,%00010000,%00010000,%00101000,%00101000);
+	
+	// Animated Tiles
+	waterTileTimer : integer = 1500;
+	waterTileState : byte = 0;
+	
+	// Scrolling
+	scrollTimer : integer ;
+	scrollState : byte = 0;
+	scrollDelta : byte = 0;
+	scrollMax : byte = 0;
+	
+	
+	
+	
+Procedure InitTiles;
+begin
+	textio::CharDef(130,#groundChar);
+	textio::CharDef(131,#treeChar);
+	textio::CharDef(132,#stoneChar);
+	textio::CharDef(138,#playerChar);
+	textio::CharDef(140,#heartChar);	
+	textio::CharDef(141,#strengthChar);
+	textio::CharDef(142,#water1Char);
+end;
+
+Procedure InitGame;
+begin
+	health := 100;
+	str := 1;	
+	playerX := 10;
+	playerY := 1;
+	mapOffsetX := 0;
+	mapOffsetY := 0;
+end;
+
+procedure DrawMap;
+var
+	y : byte;
+	maddr : integer;
+	addr : integer;
+begin
+	for y := 1 to 49 do
+	begin
+		maddr := math::Mul8x8((y+mapOffsetY),@MapWidth)+1+mapOffsetX;
+		addr := math::Mul8x8(y,@ScreenWidth)+1;
+		memory::Copy($0802,maddr,$0005,addr,57);
+		memory::Copy($0803,maddr,$ff08,addr,57);
+	end;
+end;
+
+procedure DrawHud;
+begin
+	memory::Copy($0800,$0000,$0005,$0000,4000);
+	memory::Copy($0801,$0000,$ff08,$0000,4000);
+	
+	textio::PrintByte(health,64,1,2);
+	textio::PrintByte(str,64,2,10);
+end;
+
+Procedure UpdateTiles;
+begin
+	dec(waterTileTimer);
+	if waterTileTimer=0 then
+	begin
+		waterTileTimer := 8000;
+		inc(waterTileState);
+		if waterTileState>2 then waterTileState := 0;
+		
+		if waterTileState=0 then
+			textio::CharDef(142,#water1Char);
+		if waterTileState=1 then	
+			textio::CharDef(142,#water2Char);
+		if waterTileState=2 then
+			textio::CharDef(142,#water3Char);		
+	end;
+end;
+
+Procedure ErasePlayer;
+begin
+	memory::Poke32($0005,plAddr,charUnderPlayer);
+	memory::Poke32($0ff8,plAddr,colorUnderPlayer);
+end;
+
+Procedure ShowPlayer;
+begin
+	plAddr := math::Mul8x8(playerY-mapOffsetY,@ScreenWidth)+playerX-mapOffsetX;
+	charUnderPlayer := memory::Peek32($0005,plAddr);
+	colorUnderPlayer := memory::Peek32($0ff8,plAddr);
+	memory::Poke32($0005,plAddr,@PlayerChar);
+	memory::Poke32($0ff8,plAddr,@PlayerColor);
+	
+	sfx::Play(sfx::SID1,sfx::VOICE3,2000,$f0,$40,sfx::NOISE,80);
+end;
+
+
+Function CheckMap(dx,dy,n : byte) : byte;
+var
+	checkTile : byte;
+	ret : byte;
+	addr : integer;
+begin
+	if n=1 then
+		addr := math::Mul8x8(playerY-mapOffsetY-dy,@ScreenWidth)+(playerX-mapOffsetX-dx)
+	else
+		addr := math::Mul8x8(playerY-mapOffsetY+dy,@ScreenWidth)+(playerX-mapOffsetX+dx);
+	ret := 1;
+	checkTile := memory::Peek32($0005,addr);
+	if checkTile<>@GroundTile then
+		ret := 0;
+	CheckMap := ret;	
+end;
+
+Function CheckScrollDown :byte;
+var
+	ret : byte;
+begin
+	ret := 0;
+	if (playerY-mapOffsetY) = @MapViewHeight then
+	begin
+		// start map locomotion down
+		scrollState := @MapScrollDown;		// set scrolling active to switch down
+		scrollDelta := 0;					// starting at 0
+		scrollMax := @MapViewHeight-1;		// advance to screen height
+		scrollTimer := @MapScrollTime;		// MapScrollTime frames? to advance to the next
+		
+		ret := 1;
+	end;
+	CheckScrollDown := ret;
+end;
+
+
+Function CheckScrollRight :byte;
+var
+	ret : byte;
+begin
+	ret := 0;
+	if (playerX-mapOffsetX) = @MapViewWidth then
+	begin
+		// start map locomotion down
+		scrollState := @MapScrollRight;		// set scrolling active to switch down
+		scrollDelta := 0;					// starting at 0
+		scrollMax := @MapViewWidth-1;		// advance to screen height
+		scrollTimer := @MapScrollTime;		// MapScrollTime frames? to advance to the next
+		
+		ret := 1;
+	end;
+	CheckScrollRight := ret;
+end;
+
+
+
+Function CheckScrollLeft :byte;
+var
+	ret : byte;
+begin
+	ret := 0;
+	if (playerX-mapOffsetX) = 1 then
+	begin
+		// start map locomotion down
+		scrollState := @MapScrollLeft;		// set scrolling active to switch down
+		scrollDelta := @MapViewWidth;			// starting at MapViewHeight
+		scrollMax := 0;						// advance to 0
+		scrollTimer := @MapScrollTime;		// MapScrollTime frames? to advance to the next
+		
+		ret := 1;
+	end;
+	CheckScrollLeft := ret;
+end;
+
+
+Function CheckScrollUp :byte;
+var
+	ret : byte;
+begin
+	ret := 0;
+	if (playerY-mapOffsetY) = 1 then
+	begin
+		// start map locomotion down
+		scrollState := @MapScrollUp;			// set scrolling active to switch down
+		scrollDelta := @MapViewHeight;		// starting at MapViewHeight
+		scrollMax := 0;						// advance to 0
+		scrollTimer := @MapScrollTime;		// MapScrollTime frames? to advance to the next
+		
+		ret := 1;
+	end;
+	CheckScrollUp := ret;
+end;
+
+
+Procedure UpdateScroll;
+begin
+	if scrollState = 0 then
+		return;
+	dec(scrollTimer);
+	
+	case scrollState of
+		@MapScrollDown:
+		begin
+			if scrollTimer=0 then
+			begin
+				ErasePlayer();
+				scrollTimer := @MapScrollTime;
+				inc(mapOffsetY);
+				//dec(playerY);
+				if mapOffsetY=scrollMax then
+					scrollState := 0;
+				DrawHud();
+				DrawMap();
+				ShowPlayer();
+			end;
+		end;
+		@MapScrollUp:
+		begin
+			if scrollTimer=0 then
+			begin
+				ErasePlayer();
+				scrollTimer := @MapScrollTime;
+				dec(mapOffsetY);
+				//dec(playerY);
+				if mapOffsetY=scrollMax then
+					scrollState := 0;
+				DrawHud();
+				DrawMap();
+				ShowPlayer();
+			end;
+		end;
+		@MapScrollRight:
+		begin
+			if scrollTimer=0 then
+			begin
+				ErasePlayer();
+				scrollTimer := @MapScrollTime;
+				inc(mapOffsetX);
+				//dec(playerY);
+				if mapOffsetX=scrollMax then
+					scrollState := 0;
+				DrawHud();
+				DrawMap();
+				ShowPlayer();
+			end;
+		end;
+		@MapScrollLeft:
+		begin
+			if scrollTimer=0 then
+			begin
+				ErasePlayer();
+				scrollTimer := @MapScrollTime;
+				dec(mapOffsetX);
+				//dec(playerY);
+				if mapOffsetX=scrollMax then
+					scrollState := 0;
+				DrawHud();
+				DrawMap();
+				ShowPlayer();
+			end;
+		end;
+	end;		
+end;
+
+
+
+Procedure UpdatePlayer;
+var
+	key : byte;
+begin
+	if scrollState>0 then
+		return;
+		
+	key := inputs::GetAscii();
+	
+	case key of
+		inputs::MKEY_ASC_CURSOR_LEFT:
+		begin
+			if not CheckScrollLeft() then
+			begin
+				if CheckMap(1,0,1)>0 then
+				begin
+					ErasePlayer();
+					dec(playerX);
+					ShowPlayer();
+				end;
+			end;
+		end;
+		inputs::MKEY_ASC_CURSOR_RIGHT:
+		begin
+			if not CheckScrollRight() then
+			begin
+				if CheckMap(1,0,0)>0 then
+				begin
+					ErasePlayer();
+					inc(playerX);
+					ShowPlayer();
+				end;
+			end;
+		end;
+		inputs::MKEY_ASC_CURSOR_UP:
+		begin
+			if not CheckScrollUp() then
+			begin
+				if CheckMap(0,1,1)>0 then
+				begin
+					ErasePlayer();
+					dec(playerY);
+					ShowPlayer();
+				end;
+			end;
+		end;
+		inputs::MKEY_ASC_CURSOR_DOWN:
+		begin
+			if not CheckScrollDown() then
+			begin
+				if CheckMap(0,1,0)>0 then
+				begin
+					ErasePlayer();
+					inc(playerY);
+					ShowPlayer();
+				end;
+			end;
+		end;
+	end;
+end;
+
+
+
+Procedure UpdateGame;
+begin
+	while (true) do
+	begin
+		system::VBlank();
+		
+		UpdateTiles();
+		UpdatePlayer();
+		UpdateScroll();
+		sfx::Update();
+	end;
+end;
+
+begin	
+		
+	fileio::LoadFile($0800,$0000,#hudFile);				// load hud char file
+	fileio::LoadFile($0801,$0000,#hudcFile);				// load hud color file
+	fileio::LoadFile($0802,$0000,#mapFile);				// load map char file
+	fileio::LoadFile($0803,$0000,#mapcFile);				// load map color file
+	
+	textio::Set80x50();									// move the screen ram
+	system::SetCharLocation($0004,$0000);					// set char location to $40000
+	system::SetScreenLocation($0005,$0000);				// new screen location $50000
+	textio::SetFont(textio::FONT_A);						// set font 
+	
+	system::SetScreenBackground(0,13);						// background/border to black
+	textio::ClearScreen(0,0);							// clearscreen with char 0 and black
+	
+	// GAME START
+	InitGame();
+	InitTiles();
+	
+	DrawHud();
+	DrawMap();	
+	ShowPlayer();
+	// INTO THE THE GAMELOOP
+	UpdateGame();
+end.

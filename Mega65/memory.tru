@@ -68,6 +68,37 @@ begin
 	
 end;
 
+function FlipNibbleHighByte(a : Integer) : Integer;
+begin
+	asm("
+		LDA localVariable_memory_FlipNibbleHighByte_memory_a+1
+		ASL
+		ADC #$80
+		ROL
+		ASL
+		ADC #$80
+		ROL	
+		STA localVariable_memory_FlipNibbleHighByte_memory_a+1
+	");
+	FlipNibbleHighByte := a;
+end;
+
+function FlipNibbleLowByte(a : Integer) : Integer;
+begin
+	asm("
+		LDA localVariable_memory_FlipNibbleLowByte_memory_a
+		ASL
+		ADC #$80
+		ROL
+		ASL
+		ADC #$80
+		ROL	
+		STA localVariable_memory_FlipNibbleLowByte_memory_a
+	");
+	FlipNibbleLowByte := a;
+end;
+
+
 /****************************************************************/
 /*	memory::Copy									    		*/
 /*												  				*/	
@@ -81,6 +112,16 @@ end;
 procedure Copy(srcadrhi,srcadrlo : integer;dstadrhi,dstadrlo : integer;countx : integer);
 begin
 	asm("
+		; nibble switch... for whatever reason
+		LDA localVariable_memory_Copy_memory_srcadrhi+1
+		ASL
+		ADC #$80
+		ROL
+		ASL
+		ADC #$80
+		ROL	
+		STA localVariable_memory_Copy_memory_srcadrhi+1
+		
 		lda localVariable_memory_Copy_memory_countx
 		ldy localVariable_memory_Copy_memory_countx+1
 		sta @dmaCopyCount

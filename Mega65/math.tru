@@ -1,0 +1,172 @@
+/****************************************************************/
+/*	TRSE Mega65 StdLib											*/
+/*	MATH.TRU													*/	
+/*																*/
+/*	Procedures:													*/
+/*																*/
+/****************************************************************/
+
+unit math;
+
+
+var 
+	@donotremove _resI
+		_resI : integer;
+	@donotremove _resL
+		_resL : long;
+	@donotremove _frac
+		_frac : long; 
+		
+		
+		
+Function Mul8x8(a,b : byte) : integer;
+begin
+	asm("
+		lda localVariable_math_Mul8x8_math_a
+		sta $d770
+		stz $d771
+		stz $d772
+		stz $d773
+		lda localVariable_math_Mul8x8_math_b
+		sta $d774
+		stz $d775
+		stz $d776
+		stz $d777
+		lda $d778
+		sta math__resI
+		lda $d779	
+		sta math__resI+1
+	");	
+	Mul8x8 := _resI;
+end;
+
+
+Function Div8x8(a,b : byte) : byte;
+begin
+	asm("
+		lda localVariable_math_Div8x8_math_a
+		sta $d770
+		stz $d771
+		stz $d772
+		stz $d773
+		lda localVariable_math_Div8x8_math_b
+		sta $d774
+		stz $d775
+		stz $d776
+		stz $d777
+	@divloop:
+		bit $D70F
+		bmi @divloop
+		
+		; frac-part
+		lda $d768
+		sta math__frac
+		lda $d769
+		sta math__frac+1
+		lda $d76a
+		sta math__frac+2
+		
+		lda $d76c	; whole part, 8 bit value, in A
+	");	
+end;
+
+
+Function Mul16x16(a,b : integer) : long;
+begin
+	asm("
+		lda localVariable_math_Mul16x16_math_a
+		sta $d770
+		lda localVariable_math_Mul16x16_math_a+1
+		sta $d771
+		
+		stz $d772
+		stz $d773
+		lda localVariable_math_Mul16x16_math_b
+		sta $d774
+		lda localVariable_math_Mul16x16_math_b+1		
+		sta $d775
+		
+		stz $d776
+		stz $d777
+		
+		lda $d778
+		sta math__resL
+		lda $d779	
+		sta math__resL+1
+		lda $d77A
+		sta math__resL+2
+	");	
+	Mul16x16 := _resL;
+end;
+
+
+Function Div16x16(a,b : integer) : integer;
+begin
+	asm("
+		lda localVariable_math_Div16x16_math_a
+		sta $d770
+		lda localVariable_math_Div16x16_math_a+1	
+		sta $d771
+		stz $d772
+		stz $d773
+		lda localVariable_math_Div16x16_math_b
+		sta $d774
+		lda localVariable_math_Div16x16_math_b+1		
+		sta $d775
+		stz $d776
+		stz $d777
+	@divloop:
+		bit $D70F
+		bmi @divloop
+		
+		; frac-part
+		lda $d768
+		sta math__frac
+		lda $d769
+		sta math__frac+1
+		lda $d76a
+		sta math__frac+2
+		
+		lda $d76c	; whole part, 16 bit value, in A/Y
+		ldy $d76d	
+	");	
+end;
+
+
+
+Function Div24x24(a,b : long) : long;
+begin
+	asm("
+		lda localVariable_math_Div24x24_math_a
+		sta $d770
+		lda localVariable_math_Div24x24_math_a+1	
+		sta $d771
+		lda localVariable_math_Div24x24_math_a+2	
+		sta $d772
+		stz $d773
+		lda localVariable_math_Div24x24_math_b
+		sta $d774
+		lda localVariable_math_Div24x24_math_b+1		
+		sta $d775
+		lda localVariable_math_Div24x24_math_b+2		
+		sta $d776
+		stz $d777
+	@divloop:
+		bit $D70F
+		bmi @divloop
+		
+		; frac-part
+		lda $d768
+		sta math__frac
+		lda $d769
+		sta math__frac+1
+		lda $d76a
+		sta math__frac+2
+		
+		lda $d76c	; whole part, 24 bit value, in A/Y/X
+		ldy $d76d	
+		ldx $d76e
+	");	
+end;
+
+end.

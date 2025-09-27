@@ -1,0 +1,67 @@
+/****************************************************************/
+/*	TRSE Mega65 StdLib											*/
+/*	Example : chars.ras											*/
+/*																*/
+/*	show all of charset data for Font A							*/
+/*																*/		
+/****************************************************************/
+program chars;
+
+@use "Mega65/system"
+@use "Mega65/textio"
+@use "Mega65/memory"
+@use "Mega65/inputs"
+
+@define maxx 4
+@define maxy 8
+@define dist 10
+@define space 4
+
+var 
+	
+	c,lc,k,j,l,kb,ll : byte;
+	x,y : byte;
+	v : byte;
+	addr : integer;
+	
+	
+begin	
+	textio::Set80x50();	// show more stuff!
+	system::SetScreenBackground(0,0);
+	textio::ClearScreen(0,0);
+	x := 0;
+	y := 0;
+	l := 0;
+	ll := 0;
+	while l < 8 do						// all pages done yet?
+	begin
+		for j := 0 to @maxy do				// chars per col
+		begin
+			for k := 0 to @maxx do			// chars per row
+			begin
+				lc := k+(j*@maxy)+ll;
+				textio::PrintChar(lc,x+(j*@dist),y+(k*(@maxx+4)),2);
+				for c := 0 to 8 do		// bytes in char
+				begin
+					addr := $9000 + (c+ (k*8) + (j*@maxy*8) + ll*32);
+					v := memory::Peek32($0002,addr);
+					textio::PrintByteHex(c,x+(j*@dist)+2,y+(k*(@maxx+4))+c,7);
+					textio::PrintByteHex(v,x+(j*@dist)+6,y+(k*(@maxx+4))+c,13);				
+				end;
+			end;
+		end;
+		kb := inputs::WaitAscii;
+		if kb<>0 then
+		begin
+			l := l + 1;
+			ll := ll +32;
+			x := 0;
+			y := 0;			
+		end;
+		textio::PrintByteHex(l,0,48,9);
+	end;
+	textio::Set80x25();	// show less stuff, 'cause entering basic, and basic is.... ms-bullshit
+	system::SetScreenBackground(6,6);
+	textio::ClearScreen(0,6);
+	return;
+end.

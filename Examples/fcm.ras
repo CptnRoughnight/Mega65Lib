@@ -10,6 +10,7 @@ program fcm;
 @use "Mega65/memory"
 @use "Mega65/system"
 @use "Mega65/fcio"
+@use "Mega65/inputs"
 
 var
 	palette : array[] of byte = (0,0,0,17,17,17,34,34,34,51,51,51,68,68,68,85,85,85,102,102,102,119,119,119,136,136,136,153,153,153,170,170,170,187,187,187,204,204,204,
@@ -90,6 +91,7 @@ var
 	x,y : byte;
 
 begin
+	system::Init;
 	CopyPalette;
 
 	CopyFCMTile;
@@ -107,5 +109,11 @@ begin
 			fcio::PutTile(x,y,4096,mod(x+y*system::LogicalRowSize,16));
 //			fcio::PutChar(x,y,mod(x+y*system::LogicalRowSize,128),1+mod(x+y*system::LogicalRowSize,15));
 		end;
-	Loop();
+	while (inputs::CheckKeyPressed(inputs::MKEY_ESC)=0) do
+	begin
+		
+	end;
+	fcio::DisableFCIO;
+	system::Exit;
+	return;
 end.

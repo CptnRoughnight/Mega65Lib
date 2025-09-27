@@ -16,12 +16,14 @@
 /*		ToggleLowerCase	- toggles between uppercase and lowercase 	*/
 /*		CharDef		- replace a char with new data 				*/
 /*		DrawWindow	- draws a window on the screen  				*/
+/*		TranslateColors - translate color data to COLORS array indizes */
 /*																*/		
 /****************************************************************/
 unit textio;
 
 @use "Mega65/system"
 @use "Mega65/memory"
+@use "Mega65/math"
 
 var
 	const FONT_A : byte = 0;
@@ -35,6 +37,10 @@ var
 	s1,s2 : ^byte;
 	splitCount : byte;		// index for splitstring
 	splitChar : byte;			// delimiter char for splitstring
+	@donotremove dummy
+	dummy : byte;
+	@donotremove str
+	str : String = "     ";
 
 /****************************************************************/
 /*	textio::COLOR												*/
@@ -168,7 +174,7 @@ end;
 /*	ch			- char to print 								*/
 /*  c			- color to print 								*/
 /****************************************************************/
-procedure PrintChar(x,y,ch,c : byte);
+procedure PrintChar(ch,x,y,c : byte);
 begin
 	memory::Poke32(system::SCREEN_BANK,system::SCREEN_ADR+x+y*system::MAXX,ch);
 	memory::Poke32($ff8,x+y*system::MAXX,c);
@@ -196,34 +202,6 @@ begin
 end;
 
 
-/****************************************************************/
-/*	textio::PrintIntHex										*/
-/*															*/	
-/*	a			- integer value to print						*/
-/*	x,y			- Screen position of string					*/
-/*  c			- color to print 							*/
-/****************************************************************/
-procedure PrintIntHex(a : integer;x,y,c : byte);
-var
-	i : byte;
-	nibble : byte;
-	dx : byte;
-begin
-	dx := 1;
-	i := 0;
-	
-	PrintChar(x,y,'$',c);
-	for i := 0 to 4 do 
-	begin
-		nibble := (a shr ((3-i)*4)) & $0F;
-		if nibble < 10 then
-			PrintChar(x+dx,y,nibble+48,c)
-		else
-			PrintChar(x+dx,y,(nibble-10)+1,c);
-		inc(dx);
-	end;
-end;
-
 
 /****************************************************************/
 /*	textio::PrintIntBin											*/
@@ -238,13 +216,13 @@ var
 	dx : byte;
 begin
 	dx := 1;
-	PrintChar(x,y,'%',c);
+	PrintChar('%',x,y,c);
 	fori i := 15 to 0 step -1 do
 	begin
 		if (a & (1 shl i))<>0 then
-			PrintChar(x+dx,y,'1',c)
+			PrintChar('1',x+dx,y,c)
 		else
-			PrintChar(x+dx,y,'0',c);
+			PrintChar('0',x+dx,y,c);
 		inc(dx);
 	end;
 end;
@@ -258,28 +236,113 @@ end;
 /*  c			- color to print 							*/
 /****************************************************************/
 procedure PrintByteHex(a : byte;x,y,c : byte);
-var
-	nibble : byte;
-	dx : byte;
 begin
-	dx := 1;
 	
-	PrintChar(x,y,'$',c);
-
-	nibble := (a shr 4) & $0f;
-	if (nibble < 10) then
-		PrintChar(x+1,y,nibble+48,c)
-	else
-		PrintChar(x+1,y,(nibble-10)+1,c);
+	asm("	
+		lda #<textio_str
+		sta $fb
+		lda #>textio_str
+		sta $fc
 		
+		
+		
+		lda localVariable_textio_PrintByteHex_textio_a
+		ldy #0		
+		tax		; save value
+		
+		lsr
+		lsr
+		lsr
+		lsr		; first the high nibble
 
-	nibble := a & $0f;
-	if (nibble < 10) then
-		PrintChar(x+2,y,nibble+48,c)
-	else
-		PrintChar(x+2,y,(nibble-10)+1,c);
+		cmp #$a
+		bcs @next1
+				; if I'm here, carry is clear!
+		adc #48
+		jmp @next2
+	@next1:
+		clc
+		adc #55
+	@next2:
+		sta ($fb),y
+		iny 	
 
+		
+		txa		; restore value
+		and #$0f	; second the low nibble
+		cmp #$a
+		bcs @next3
+				; if I'm here, carry is clear!
+		adc #48
+		jmp @next4
+	@next3:
+		clc
+		adc #55
+	@next4:
+		sta ($fb),y
+		iny
+				; null-terminate string
+		iny
+		lda #0 
+		sta ($fb),y		
+	@theend:
+	
+	");
+	PrintString(#str,x,y,c);
 end;
+
+
+/****************************************************************/
+/*	textio::PrintIntHex										*/
+/*															*/	
+/*	a			- integer value to print						*/
+/*	x,y			- Screen position of string					*/
+/*  c			- color to print 							*/
+/****************************************************************/
+procedure PrintIntHex(a : integer;x,y,c : byte);
+begin
+	PrintByteHex(hi(a),x,y,c);
+	inc(x);
+	inc(x);
+	PrintByteHex(lo(a),x,y,c);
+end;
+
+
+/****************************************************************/
+/*	textio::PrintLongHex										*/
+/*															*/	
+/*	a			- Long value to print						*/
+/*	x,y			- Screen position of string					*/
+/*  c			- color to print 							*/
+/****************************************************************/
+procedure PrintLongHex(a : long;x,y,c : byte);
+begin
+	asm("
+		lda localVariable_textio_PrintLongHex_textio_a+2
+		sta textio_dummy
+	");
+	PrintByteHex(dummy,x,y,c);
+	asm("
+		lda localVariable_textio_PrintLongHex_textio_a+1
+		sta textio_dummy
+		lda localVariable_textio_PrintLongHex_textio_x
+		clc
+		adc #2
+		sta localVariable_textio_PrintLongHex_textio_x
+	");
+	PrintByteHex(dummy,x,y,c);
+	asm("
+		lda localVariable_textio_PrintLongHex_textio_a
+		sta textio_dummy
+		lda localVariable_textio_PrintLongHex_textio_x
+		clc
+		adc #2
+		sta localVariable_textio_PrintLongHex_textio_x
+	");
+	PrintByteHex(dummy,x,y,c);
+end;
+
+
 
 
 /****************************************************************/
@@ -299,9 +362,9 @@ begin
 	fori i := 7 to 0 step -1 do
 	begin
 		if (a & (1 shl i))<>0 then
-			PrintChar(x+dx,y,'1',c)
+			PrintChar('1',x+dx,y,c)
 		else
-			PrintChar(x+dx,y,'0',c);
+			PrintChar('0',x+dx,y,c);
 		inc(dx);
 	end;
 end;
@@ -331,6 +394,38 @@ begin
 end;
 
 
+
+/****************************************************************/
+/*	textio::PrintByte											*/
+/*																*/	
+/*	b			- byte to print								*/
+/*	x,y			- Screen position of string						*/
+/*  c			- color to print 								*/
+/****************************************************************/
+procedure PrintByte(b : byte;x,y,c : byte);
+var
+	temp : byte;
+	i : byte;
+	k,j : byte;
+begin
+	if b=0 then
+	begin
+		PrintChar('0',x,y,c);
+		return;
+	end;
+	temp := b;
+	k := 1;
+	j := 0;
+	if b>9 then k:=2;
+	if b>99 then k:=3;
+	while (temp > 0) do
+	begin
+		i := mod(temp,10);
+		PrintChar(i+48,x+k-j,y,c);
+		temp := math::Div8x8(temp,10);
+		inc(j);
+	end;	
+end;
 
 
 /****************************************************************/
@@ -497,5 +592,29 @@ begin
 end;
 
 
+/*******************************************************************/
+/*	textio::TranslateColors										*/
+/*																*/
+/*																*/	
+/*	scradrhi		- high word of address 							*/
+/*	scradrlo		- low word of address 							*/
+/*	count		- how many colors to convert						*/
+/*																*/
+/*	converts 0..31 color indizes to indizes defined in COLORS-Array */
+/*																*/
+/*******************************************************************/
+procedure TranslateColors(srcadrhi,srcadrlo : integer;count : byte);
+var
+	i : integer;
+	c : byte;
+	addr : integer;
+begin
+	for i := 0 to count do
+	begin
+		addr := srcadrlo+i;
+		c := COLORS[memory::Peek32(srcadrhi,addr)];
+		memory::Poke32(srcadrhi,addr,c);		
+	end;
+end;
 
 end.

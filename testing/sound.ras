@@ -1,0 +1,48 @@
+/********************************************************************/
+/*	TRSE Mega65 StdLib											*/
+/*	Gme : sound.ras												*/
+/*																*/
+/*	Testing Sound&Music											*/
+/*																*/		
+/********************************************************************/
+program rpg;
+
+@use "Mega65/sfx"
+@use "Mega65/system"
+
+var 
+		i : integer;
+		j : integer;
+
+		effect : Array[6] of integer = (5000,1000,0,50,8000,2000);	
+begin	
+	j := 0;
+	while j < 5 do
+	begin
+		system::VBlank();	
+		
+		
+		sfx::Play(sfx::SID1,sfx::VOICE1,20000,$66,$66,sfx::SAW,1000);
+		//sfx::PlayMultiple(sfx::SID1,sfx::VOICE2,$88,$88,sfx::SAW,#effect);
+		if (sfx::Update()=0) then
+		begin
+
+			inc(j);
+			for i := 0 to 65535 do
+				asm("nop");
+			for i := 0 to 65535 do
+				asm("nop");
+			for i := 0 to 65535 do
+				asm("nop");
+			for i := 0 to 65535 do
+				asm("nop");
+			for i := 0 to 65535 do
+				asm("nop");
+			for i := 0 to 65535 do
+				asm("nop");
+
+		end;	
+	end;
+	
+	Loop();
+end.

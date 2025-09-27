@@ -24,21 +24,27 @@ begin
 	textio::Set80x50();	// ! move the screen ram
 	system::SetScreenLocation($0005,$0000);
 	textio::ClearScreen(1,6);
+	textio::PrintString("WASD Move, LShift Color, Tab Clear",0,0,2);
 	counter1 := 10000;
+	x := 2;
+	y := 2;
 	while(1) do
 	begin
 		// clear the screen
 		if (inputs::CheckKeyHit(inputs::MKEY_TAB)) then 
 		begin
-			textio::ClearScreen(0,0);
-			x := 0;
-			y := 0;
+			textio::ClearScreen(1,6);
+			textio::PrintString("WASD Move, LShift Color, Tab Clear",0,0,2);
+			x := 2;
+			y := 2;
 		end;
 		
 		if (inputs::CheckKeyHit(inputs::MKEY_SPACE)) then
 		begin
 			wasd := wasd xor 1;
 		end;
+		
+
 		
 		// device too fast... slow it down a bit
 		dec(counter1);
@@ -65,7 +71,7 @@ begin
 			if (inputs::CheckModPressed(inputs::MKEY_MOD_LSHIFT)) then
 				c := mod (c+1,32);
 
-			textio::PrintChar(x,y,65,textio::COLORS[c]);
+			textio::PrintChar(65,x,y,textio::COLORS[c]);
 			counter1:=10000;
 		end;
 	end;	

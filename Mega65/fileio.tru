@@ -1,16 +1,16 @@
-/****************************************************************/
-/*	TRSE Mega65 StdLib											*/
-/*	Memory.TRU													*/	
-/*																*/
-/*	Procedures:													*/
-/*		SaveFile		- Save memory to File					*/
-/*		LoadFile 	- Load File into memory						*/
-/*																*/		
-/*	Hint:														*/
-/*		To use this library, you have to use a D81 image		*/
-/*		use the vice tool C1541 to create on an put your prg  	*/
-/*		and data onto it. Look at Examples/files.ras 			*/
-/****************************************************************/
+/*****************************************************************/
+/*	TRSE Mega65 StdLib												  			*/
+/*	Memory.TRU																		*/	
+/*																						*/
+/*	Procedures:																		*/
+/*		SaveFile		- Save memory to File									*/
+/*		LoadFile 	- Load File into memory									*/
+/*																						*/		
+/*	Hint:																				*/
+/*		To use this library, you have to use a D81 image				*/
+/*		use the vice tool C1541 to create on an put your prg  		*/
+/*		and data onto it. Look at Examples/files.ras 					*/
+/*****************************************************************/
 unit fileio;
 
 @use "Mega65/misc"

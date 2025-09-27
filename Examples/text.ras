@@ -37,7 +37,7 @@ begin
 	
 	for i := 0 to 32 do
 	begin
-		textio::PrintChar(i,10,2,textio::COLORS[i]);
+		textio::PrintChar(2,i,10,textio::COLORS[i]);
 	end;
 	
 	textio::PrintString(#hello,20,5,0);

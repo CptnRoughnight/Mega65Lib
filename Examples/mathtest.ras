@@ -1,0 +1,60 @@
+/****************************************************************/
+/*	TRSE Mega65 StdLib											*/
+/*	Example : fcm.ras											*/
+/*																*/
+/*	Shows usage of fcio unit									*/
+/*																*/		
+/****************************************************************/
+program fcm;
+
+@use "Mega65/memory"
+@use "Mega65/system"
+@use "Mega65/inputs"
+@use "Mega65/math"
+@use "Mega65/textio"
+
+
+var
+	a,b : byte;
+	aa,bb : integer;
+	res1 : integer;
+	res2 : long;
+	
+begin
+	textio::ClearScreen(0,6);
+	a := 70;
+	b := 5;
+	aa := 7000;
+	bb := 20;
+	res1 := 0;
+	
+
+	res1 := math::Mul8x8(a,b);
+	res2 := math::Mul16x16(aa,bb);
+	textio::PrintString("TRSE Stdlib Math Unit Test",0,0,0);
+	
+	textio::PrintString("173      ->",0,8,0);		textio::PrintIntHex($00AD,15,08,3);
+	textio::PrintString("57005    ->",0,9,0);		textio::PrintIntHex($DEAD,15,09,3);
+	textio::PrintString("70*5     ->",0,10,0);	textio::PrintIntHex(res1,15,10,4);
+	textio::PrintString("7000*20  ->",0,11,0);	textio::PrintLongHex(res2,15,11,3);
+			
+			
+	b := math::Div8x8(128,4);
+			
+	textio::PrintString("128/4    ->",0,12,0);	textio::PrintByteHex(b,15,12,8);
+			
+	res1 := math::Div16x16(62833,3);
+			
+	textio::PrintString("62833/3  ->",0,13,0);	textio::PrintIntHex(res1,15,13,10);
+	textio::PrintString("frac     ->",0,14,0);	textio::PrintLongHex(math::_frac,15,14,10);
+	
+	res2 := math::Div24x24(736362,624);	// $B3C6A / $270 = 49C,... 
+	
+	textio::PrintString("736362/624->",0,13,0);	textio::PrintLongHex(res2,15,13,10);
+	textio::PrintString("frac     ->",0,14,0);	textio::PrintLongHex(math::_frac,15,14,10);
+	
+	while (inputs::CheckKeyPressed(inputs::MKEY_ESC)=0) do
+	begin		
+	end;
+	return;
+end.

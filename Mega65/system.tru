@@ -37,6 +37,29 @@ var
 	const	HORIZONTAL_CENTER : integer = 400;
 	const	VERTICAL_CENTER : integer = 304;			// change for NTSC to 242
 
+	@donotremove _zeropage
+	_zeropage : Array[256] of byte;
+	
+/****************************************************************/
+/*	system::Init													*/
+/*																*/	
+/*																*/
+/*  saves zero page layout										*/
+/****************************************************************/
+Procedure Init;
+begin
+	asm("
+		ldx #$00
+	@loop1:	
+		lda $0,x
+		sta system__zeropage,x	
+		dex
+		cpx #0
+		bne @loop1 
+	");	
+end;
+
+
 
 
 /****************************************************************/
@@ -211,5 +234,43 @@ begin
   	   	bmi @f
 	");
 end;
+
+
+/****************************************************************/
+/*	system::Exit													*/
+/*																*/	
+/*																*/
+/*  restores zeropage layout										*/
+/*  banks in Kernal and Basic Rom									*/
+/****************************************************************/
+Procedure Exit;
+begin
+	
+	asm("
+		sei
+		ldx #$00
+	@loop1:
+		lda system__zeropage,x
+		sta $0,x
+		dex
+		cpx #0
+		bne @loop1
+		
+		cli
+		
+		lda #$64
+		sta $d030	
+		lda #0
+		sta $d062
+		sta $d060
+		lda #8
+		sta $d061
+		
+	");	
+//	SetScreenLocation($00,$0800);
+//	SetScreenBackground(2,2);
+end;
+
+
 	
 end.

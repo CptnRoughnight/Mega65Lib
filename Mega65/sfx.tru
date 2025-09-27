@@ -1,0 +1,137 @@
+/****************************************************************/
+/*	TRSE Mega65 StdLib											*/
+/*	SFX.TRU													*/	
+/*																*/
+/*	Procedures:													*/
+/*																*/
+/****************************************************************/
+unit sfx;
+
+var 
+	const SID1 : integer = $D400;
+	const SID2 : integer = $D420;
+	const SID3 : integer = $D440;
+	const SID4 : integer = $D460;
+	
+	const VOICE1 : integer = $0;
+	const VOICE2 : integer = $7;
+	const VOICE3 : integer = $E;
+	
+	const TRIANGLE : integer = $10;
+	const SAW : integer = $20;
+	const RECTANGLE : integer = $30;
+	const NOISE : integer = $40;
+	
+	isSoundActive : byte;
+	isMultiple : byte;
+	NoteCount : Byte;
+	noteArray : Pointer of integer;
+	
+	curSid,
+	curFreq,
+	curDuration : integer;
+
+Procedure Play(_sid : integer;voice : integer;freq : integer;ad,sr,wf : byte;duration : integer);
+begin
+	asm("
+		lda sfx_isSoundActive
+		cmp #0
+		bne @theend
+	
+		lda localVariable_sfx_Play_sfx_duration
+		sta sfx_curDuration
+		lda localVariable_sfx_Play_sfx_duration+1
+		sta sfx_curDuration+1
+	
+		clc
+		lda localVariable_sfx_Play_sfx__sid
+		adc localVariable_sfx_Play_sfx_voice
+		sta sfx_curSid
+		sta $fb		
+		lda localVariable_sfx_Play_sfx__sid+1
+		adc localVariable_sfx_Play_sfx_voice+1
+		sta sfx_curSid+1
+		sta $fc
+		
+		lda #1
+		sta sfx_isSoundActive
+				
+		lda localVariable_sfx_Play_sfx_freq	
+		ldy #0
+	@l1:	sta ($fb),y		; low freq
+	
+		lda localVariable_sfx_Play_sfx_freq+1
+		ldy #1
+	@l2:	sta ($fb),y		; high freq
+		
+		lda localVariable_sfx_Play_sfx_wf
+		ora #$01
+		ldy #4
+	@l3:	sta ($fb),y		; gate on, pulse
+
+		lda localVariable_sfx_Play_sfx_ad
+		ldy #5
+	@l4:	sta ($fb),y		; attack/decay
+	
+		lda localVariable_sfx_Play_sfx_sr		
+		ldy #6
+	@l5:	sta ($fb),y		; sustain/release
+	
+	@theend:
+	");
+end;
+
+Procedure Deactivate;
+begin
+	asm("
+		lda sfx_curSid
+		sta $fb
+		lda sfx_curSid+1
+		sta $fc
+		
+		ldy	#4
+		lda #$20
+	@l1:	sta ($fb),y
+	");
+end;
+
+Function Update : byte;
+begin
+	asm("
+		lda sfx_isSoundActive
+		cmp #0
+		beq @theend
+		
+		sec
+		lda sfx_curDuration
+		sbc #1
+		sta sfx_curDuration
+		lda sfx_curDuration+1
+		sbc #0
+		sta sfx_curDuration+1
+		
+		lda sfx_curDuration
+		cmp #0
+		bne @endone
+	@checkNext:
+		lda sfx_curDuration+1
+		cmp #0
+		bne @endone
+		jmp @endzero	
+	
+	@endone:
+			lda #1
+			jmp @theend		
+	@endzero:
+	");
+	Deactivate();
+	
+	asm("
+	
+			lda #0
+			sta sfx_isSoundActive		
+	@theend:
+	");
+end;
+
+end.

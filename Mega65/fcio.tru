@@ -205,6 +205,72 @@ begin
 end;
 
 
+/****************************************************************/
+/*	fcio::DisableFCIO											*/
+/*																*/
+/*  Restores state of VIC, disables FC/NCM Mode					*/
+/*																*/	
+/****************************************************************/
+
+
+Procedure DisableFCIO;
+begin
+	asm("
+		sei
+		lda #$02
+		sta $dc0d
+		lda #$03
+		sta $dd0d
+		lda #255
+		sta $0
+		lda #133
+		sta $1
+		
+		
+		lda #$00
+		sta $d07a
+		sta $d053
+		sta $d079
+		sta $d049
+		sta $d04d
+		sta $d04f
+		lda #100
+		sta $d030
+		
+		
+		lda #56
+		sta $d01a
+		lda #201
+		sta $d016
+		lda #224
+		sta $d031
+		lda #$01
+		sta $d053
+		sta $d04b
+		lda #96
+		sta $d054
+		lda #80
+		sta $d05c
+		sta $d04c
+		lda #192
+		sta $d05d
+		lda #104
+		sta $d048
+		sta $d04e
+		lda #248
+		sta $d04a
+	
+		cli
+	");	
+end;
+
+/****************************************************************/
+/*	fcio::Clearscreen											*/
+/*																*/
+/*	Clears the screen in FC/NCM mode								*/
+/*																*/	
+/****************************************************************/
+
 Procedure ClearScreen;
 begin
 	// Clear Color Ram
