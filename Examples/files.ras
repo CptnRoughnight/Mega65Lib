@@ -7,14 +7,13 @@
 /*	needs vice c1541 to be installed!							*/
 /*																*/		
 /****************************************************************/
-program mem;
+program files;
 
 @use "Mega65/memory"
 @use "Mega65/fileio"
 
 var 
 	val : integer;
-	@donotremove savedFile
 	savedFile : string = "SAVE.BIN";
 	
 begin

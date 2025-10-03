@@ -1,0 +1,50 @@
+{
+    "Map/SizeTest": {
+        "height": 4300,
+        "width": 2
+    },
+    "activeFile": "map1.tmx",
+    "expandedProjectPaths": [
+    ],
+    "fileStates": {
+        "map1.tmx": {
+            "scale": 1,
+            "selectedLayer": 0,
+            "viewCenter": {
+                "x": 363,
+                "y": 327
+            }
+        },
+        "palette.tsx": {
+            "scaleInDock": 8,
+            "scaleInEditor": 1
+        },
+        "tiles.tsx": {
+            "scaleInDock": 4,
+            "scaleInEditor": 1
+        }
+    },
+    "last.exportedFilePath": "/home/roughnight86/projects/Mega65Lib/Games/platformer",
+    "last.imagePath": "/home/roughnight86/projects/Mega65Lib/Games/platformer",
+    "map.height": 50,
+    "map.lastUsedExportFilter": "Alle Dateien (*)",
+    "map.lastUsedFormat": "tmx",
+    "map.tileHeight": 8,
+    "map.tileWidth": 16,
+    "map.width": 100,
+    "openFiles": [
+        "map1.tmx",
+        "tiles.tsx"
+    ],
+    "project": "platformer.tiled-project",
+    "recentFiles": [
+        "tiles.tsx",
+        "map1.tmx",
+        "palette.tsx"
+    ],
+    "tileset.lastUsedFormat": "tsx",
+    "tileset.tileSize": {
+        "height": 8,
+        "width": 16
+    }
+}

@@ -39,9 +39,13 @@ program rpg;
 
 var 
 	// Files to load
+	@donotremove hudFile
 	hudFile : string = "HUD.BIN";
+	@donotremove hudcFile
 	hudcFile : string = "HUDC.BIN";
+	@donotremove mapFile
 	mapFile : string = "MAP3.BIN";
+	@donotremove mapcFile
 	mapcFile : string = "MAP3C.BIN";
 	
 	// Map Vars
@@ -148,7 +152,7 @@ end;
 Procedure ErasePlayer;
 begin
 	memory::Poke32($0005,plAddr,charUnderPlayer);
-	memory::Poke32($0ff8,plAddr,colorUnderPlayer);
+	memory::Poke32($ff08,plAddr,colorUnderPlayer);
 end;
 
 Procedure ShowPlayer;
@@ -157,7 +161,7 @@ begin
 	charUnderPlayer := memory::Peek32($0005,plAddr);
 	colorUnderPlayer := memory::Peek32($0ff8,plAddr);
 	memory::Poke32($0005,plAddr,@PlayerChar);
-	memory::Poke32($0ff8,plAddr,@PlayerColor);
+	memory::Poke32($ff08,plAddr,@PlayerColor);
 	
 	sfx::Play(sfx::SID1,sfx::VOICE3,2000,$f0,$40,sfx::NOISE,80);
 end;
@@ -406,11 +410,12 @@ begin
 end;
 
 begin	
-		
-	fileio::LoadFile($0800,$0000,#hudFile);				// load hud char file
-	fileio::LoadFile($0801,$0000,#hudcFile);				// load hud color file
-	fileio::LoadFile($0802,$0000,#mapFile);				// load map char file
-	fileio::LoadFile($0803,$0000,#mapcFile);				// load map color file
+	fileio::LoadFile($0800,$0000,#hudFile,7);				// load hud char file
+
+	fileio::LoadFile($0801,$0000,#hudcFile,8);				// load hud color file
+	
+	fileio::LoadFile($0802,$0000,#mapFile,8);				// load map char file
+	fileio::LoadFile($0803,$0000,#mapcFile,9);				// load map color file
 	
 	textio::Set80x50();									// move the screen ram
 	system::SetCharLocation($0004,$0000);					// set char location to $40000
@@ -429,4 +434,6 @@ begin
 	ShowPlayer();
 	// INTO THE THE GAMELOOP
 	UpdateGame();
+	Loop();
+	return;
 end.

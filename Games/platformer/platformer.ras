@@ -1,0 +1,132 @@
+/********************************************************************/
+/*	TRSE Mega65 StdLib											*/
+/*	Game : platformer.ras										*/
+/*																*/
+/*	little platformer game to demonstrate TRSE StdLib				*/
+/*  you can't run this demo directly with emulator, you need to 	*/
+/*  compile a d81 disk image... emu.sh/send.sh show how it's done 	*/
+/*																*/
+/*	usage of NCM +  multilayer RRB and smooth scrolling			*/
+/*																*/		
+/********************************************************************/
+program platformer;
+
+@use "Mega65/system"
+@use "Mega65/fileio"
+@use "Mega65/fcio"
+@use "Mega65/math"
+
+/*@use "Mega65/memory"
+@use "Mega65/inputs"
+@use "Mega65/sfx"
+*/
+
+
+// Files to load
+var
+	paletteFile : string = "PALETTE.BIN";	// 11
+	tilesFile : string = "TILES.BIN";		// 9
+	map1File : string = "MAP1.BIN";		// 8
+	
+	bckTiles : string = "BCK.BIN";		// 7
+	bckMap : string = "BCKMAP.BIN";		// 10
+
+	
+Procedure InitGame;
+begin
+	
+	// load Palette and 
+	fileio::LoadFile($0000,$8000,#paletteFile,11);
+	
+	// Load Tile data to $40000
+	fileio::LoadFile($0004,$0000,#tilesFile,9);
+	// Load Map data to upper memory
+	fileio::LoadFile($0800,$0000,#map1File,8);
+	
+	
+	// load Background image data
+	fileio::LoadFile($0004,$6500,#bckTiles,7);			// bck tiles start at 4500
+	fileio::LoadFile($0801,$0000,#bckMap,10);
+	
+	
+	// copy Palette Data
+	asm("
+		
+		
+	  	ldx #$00
+	@copyLoop:
+		lda $8000,x
+		sta $d100,x
+		lda $8100,x
+		sta $d200,x
+		lda $8200,x
+		sta $d300,x
+		inx
+		bne @copyLoop
+	
+	");
+	
+	// Set Background/Border Color
+//	system::SetScreenBackground(0,13);
+	system::SetScreenBackground($FF,$FF);
+	
+	// Switch to FCM/NCM Mode - ScreenSize 320x200 
+	fcio::InitFCM(320,200);
+	// Switch NCM Mode
+	fcio::ToggleNCM();
+	
+	// Set Screen Location to $50000
+	system::SetScreenLocation($0005,$0000);
+	
+	// clear empty Tile #4095
+	memory::Fill($0003,$ffc0,64,0);
+	memory::Fill($0004,$e1c0,64,0);
+end;
+
+/*******************************************************************/
+/*	DrawScreen													*/
+/*																*/
+/*  Constructing the NCM/RRB Screen								*/
+/*																*/
+/*	1st Layer Background - static									*/
+/*	2nd Layer Mountains - 										*/
+/*	3rd Layer Collision/Foreground								*/
+/*  -> Player Pixies												*/
+/*																*/	
+/*******************************************************************/
+Procedure DrawScreen;
+var
+	y,x : byte;	
+	addr : integer;
+	maddr : integer;
+begin
+	// Line by line
+	addr := 0;
+	maddr := 0;
+	for y := 0 to system::MAXY*2 do
+	begin
+		// first the background	
+		memory::Copy($0801,maddr,$0005,addr,system::LogicalRowSize);		// DMA 
+		addr := addr + system::LogicalRowSize;
+		maddr := maddr + 20;		
+	end;
+	for y := 0 to system::MAXY*2 do
+	begin
+		for x := 0 to 20 do
+		begin
+			addr := y*system::LogicalRowSize+x*2;
+			memory::WPoke32($ff08,addr,$8008);							// FMA: sta ($45),z
+		end;
+	end;
+end;
+
+
+
+begin	
+
+	InitGame;
+	DrawScreen;
+	
+	Loop();
+	return;
+end.

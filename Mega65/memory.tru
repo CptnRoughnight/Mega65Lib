@@ -58,7 +58,7 @@ begin
 		.byte $00												; end of job options
 		.byte $03												; fill
 		@dmaFillCount: 		.word $0028							; count
-		@dmaFillValue: 		.word $00							; value
+		@dmaFillValue: 		.word $0000							; value
 		.byte $00												; src bank
 		@dmaFillDst: 		.word $f800							; dst
 		@dmaFillDstBank: 	.byte $01							; dst bank

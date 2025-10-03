@@ -147,12 +147,12 @@ begin
 			tsb $d030
 			
 			; Turm on FCM mode and 16bit per char num
-			lda #$05
+			lda #%00000101
 			sta $d054
 			
 	    
-    			;lda #%01000000
-     		;trb $d051
+    			lda #%01000000
+     		trb $d051
       		
         		
 			;lda #$1Dbyte
@@ -272,13 +272,17 @@ end;
 /****************************************************************/
 
 Procedure ClearScreen;
+var
+	x,y : byte;
 begin
-	// Clear Color Ram
-	memory::Fill($ff08,$0000,system::MAXY*system::MAXX,0);
 	// Clear Screen Ram
 	memory::Fill(system::SCREEN_BANK,system::SCREEN_ADR,system::MAXY*system::MAXX,0);
 
+	// Clear Color Ram
+	memory::Fill($ff08,$0000,system::MAXY*system::MAXX,0);
 end;
+
+
 /****************************************************************/
 /*	fcio::ToggleNCM											*/
 /*																*/
@@ -294,8 +298,11 @@ begin
 		isNCM := 1;
 		system::MAXX := system::MAXX / 2;
 		system::SetRowSize(system::MAXX);
-		for i := 0 to system::MAXY*system::LogicalRowSize do
+/*		for i := 0 to system::MAXY*system::LogicalRowSize do
+		begin
 			memory::Poke32($0ff8,i*2,@NCM_TAG);				
+			memory::Poke32($0ff8,1+i*2,$0);		
+		end;*/
 	end else
 	begin
 		system::MAXX := system::MAXX * 2;

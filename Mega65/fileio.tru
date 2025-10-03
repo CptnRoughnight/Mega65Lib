@@ -15,8 +15,8 @@ unit fileio;
 
 @use "Mega65/misc"
 
-var 
-	s : ^byte;
+var s : ^byte;
+
 
 /****************************************************************/
 /*	fileio::SaveFile											*/
@@ -82,15 +82,46 @@ end;
 /*	s  		- pointer to filename-string						*/
 /*																*/
 /****************************************************************/
-procedure LoadFile(b : integer;addr : integer;s : global ^byte);
-var 
-	l : byte;
+procedure LoadFile(b : integer;addr : integer;s : global ^byte;l : byte);
 begin
-	l := misc::strlen(s);
 	ASM("
 		sei		
+		
+		lda localVariable_fileio_LoadFile_fileio_l
+		ldx fileio_s
+		ldy fileio_s+1
+		jsr $FFBD	; setnam
+		
+		lda localVariable_fileio_LoadFile_fileio_b+1	; memory
+		ora #$80
+		ldy localVariable_fileio_LoadFile_fileio_b
+		ldx #$00										; filename
+		jsr $ff6b	;setbnk
+		
+		lda #$00
+		ldx #$08
+		ldy #$00
+		jsr $FFBA	; setlfs
+				
+		lda #0
+		ldx localVariable_fileio_LoadFile_fileio_addr
+		ldy localVariable_fileio_LoadFile_fileio_addr+1
+		jsr $FFD5
 	
-		lda localVariable_fileio_LoadFile_fileio_b+1	; for load address
+		bcs @derror
+		jmp @goexit
+	@derror:
+		inc $d020
+		jmp @derror
+		
+	@goexit:
+		cli
+	");	
+end;
+
+
+/*
+	lda localVariable_fileio_LoadFile_fileio_b+1	; for load address
 		ora #$80
 		ldy localVariable_fileio_LoadFile_fileio_b
 		ldx #$00	; bank for filename
@@ -110,15 +141,6 @@ begin
 		ldx localVariable_fileio_LoadFile_fileio_addr
 		ldy localVariable_fileio_LoadFile_fileio_addr+1
 		jsr $FFD5
-		bcs @derror
-		jmp @goexit
-	@derror:
-		inc $d020
-		jmp @derror
-		
-	@goexit:
-		cli
-	");	
-end;
+		*/
 
 end.

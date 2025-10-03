@@ -5,8 +5,7 @@ program HelloWorld;
 
 begin
 	textio::Set80x25();
-	textio::SetScreenBackground(1,8);
 	textio::ClearScreen(1,6);
-	
+	textio::PrintString("HELLO WORLD",10,10,2);
 	Loop(); 
 end.
